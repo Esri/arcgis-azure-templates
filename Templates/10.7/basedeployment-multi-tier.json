@@ -1,0 +1,2648 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "functions":[],
+  "parameters": {
+    "deploymentPrefix": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Prefix applied to all resources provisioned as part of this template"
+      },
+      "maxLength": 3
+    },
+    "dnsPrefixForPublicIpAddress": {
+      "type": "string",
+      "maxLength": 80,
+      "metadata": {
+        "description": "DNS name for the Public IP address resource asociated with the site deployment. It needs to be unique across the region of deployment"
+      }
+    },
+    "externalDnsHostName": {
+      "type": "string",
+      "metadata": {
+        "description": "DNS name for the site deployment. It will be a custom domain (e.g. mysite.contoso.com) if using an SSL certificate, otherwise will be the Azure DNS <dnsPrefixForPublicIpAddress>.<location>.cloudapp.azure.com"
+      }
+    },
+    "loadBalancerSKU": {
+      "type": "string",
+      "allowedValues": [
+        "Basic",
+        "Standard"
+      ],
+      "defaultValue": "Basic",
+      "metadata": {
+        "description": "Name of a load balancer SKU. - Basic or Standard"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "metadata": {
+        "description": "Azure Region for the site deployment. All Resources provisioned are created here"
+      }
+    },
+    "deploymentTimestamp": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "An optional timestamp used to record as a tag which is used by ArcGIS Deployment Tools"
+      }
+    },
+    "virtualNetworkResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Resource Group for the existing Virtual Network specified with the 'existingVirtualNetworkName' parameter"
+      }
+    },
+    "existingVirtualNetworkName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing Virtual Network"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing Subnet within the Virtual Network specified with the 'existingVirtualNetworkName' parameter"
+      }
+    },
+    "serverVirtualMachineNames": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of virtual machine names for the Server Tier"
+      }
+    },
+    "serverVirtualMachineImageSpecs": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of Image Type used refrencing useManagedDiskImage,userImageName,userImageResourceGroupName,imagePublisher,imageOffery and imageSKU by index"
+      }
+    },
+    "portalVirtualMachineNames": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of virtual machine names for the Portal Tier"
+      }
+    },
+    "portalVirtualMachineImageSpecs": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of Image Type used refrencing useManagedDiskImage,userImageName,userImageResourceGroupName,imagePublisher,imageOffery and imageSKU by index"
+      }
+    },
+    "webProxyVirtualMachineNames": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of virtual machine names for the WebProxy Tier"
+      }
+    },
+    "webProxyVirtualMachineImageSpecs": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of Image Type used refrencing useManagedDiskImage,userImageName,userImageResourceGroupName,imagePublisher,imageOffery and imageSKU by index"
+      }
+    },
+    "dataStoreVirtualMachineNames": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of virtual machine names for the Data Store Tier"
+      }
+    },
+    "dataStoreVirtualMachineImageSpecs": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of Image Type used refrencing useManagedDiskImage,userImageName,userImageResourceGroupName,imagePublisher,imageOffery and imageSKU by index"
+      }
+    },
+    "spatiotemporalBigdataStoreVirtualMachineNames": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of virtual machine names for the Spatiotemporal Big Data Store Tier"
+      },
+      "defaultValue": ""
+    },
+    "spatiotemporalBigDataStoreVirtualMachineImageSpecs": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of Image Type used refrencing useManagedDiskImage,userImageName,userImageResourceGroupName,imagePublisher,imageOffery and imageSKU by index"
+      },
+      "defaultValue": ""
+    },
+    "fileShareVirtualMachineName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the File Share Virtual Machine"
+      }
+    },
+    "fileShareVirtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS2_v2",
+      "metadata": {
+        "description": "Size used for the File Share Virtual Machine"
+      }
+    },
+    "serverVirtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS3_v2",
+      "metadata": {
+        "description": "Virtual Machine Size for the Server tier of machines"
+      }
+    },
+    "portalVirtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS3_v2",
+      "metadata": {
+        "description": "Virtual Machine Size for the Portal tier of machines"
+      }
+    },
+    "webProxyVirtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2_v2",
+      "metadata": {
+        "description": "Virtual Machine Size for the Web/Reverse Proxy tier of machines"
+      }
+    },
+    "dataStoreVirtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS3_v2",
+      "metadata": {
+        "description": "Virtual Machine Size for the Data Store tier of machines"
+      }
+    },
+    "spatiotemporalBigDataStoreVirtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS3_v2",
+      "metadata": {
+        "description": "Virtual Machine Size for the Spatiotemporal Big Data Store tier of machines"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Username for the Virtual Machine Administrator (Windows) Account"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Password for the Virtual Machine Administrator (Windows) Account"
+      }
+    },
+    "arcgisServiceAccountUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "User name for the ArcGIS (Windows) Service Account"
+      },
+      "defaultValue": "arcgis"
+    },
+    "arcgisServiceAccountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the ArcGIS (Windows) Service Account Password"
+      },
+      "defaultValue": ""
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "User name for the ArcGIS Server Site Primary Site Administrator"
+      },
+      "defaultValue": "siteadmin"
+    },
+    "primarySiteAdministratorAccountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "User name for the ArcGIS Server Site Primary Site Administrator"
+      }
+    },
+    "serverLicenseFileUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Accessible file path for ArcGIS Server License"
+      },
+      "defaultValue": ""
+    },
+    "serverLicenseFileName": {
+      "type": "string",
+      "metadata": {
+        "description": "File name for the ArcGIS Server License"
+      },
+      "defaultValue": ""
+    },
+    "portalLicenseFileUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Accessible file path for Portal for ArcGIS License"
+      },
+      "defaultValue": ""
+    },
+    "portalLicenseFileName": {
+      "type": "string",
+      "metadata": {
+        "description": "File name for the Portal for ArcGIS License"
+      },
+      "defaultValue": ""
+    },
+    "portalLicenseUserType": {
+      "type": "string",
+      "metadata": {
+        "description": "Portal for ArcGIS License User Type to be used to Configure Portal Site"
+      },
+      "defaultValue": ""
+    },
+    "sslCertificateFileUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "Accessible file path for SSL Certificate"
+      },
+      "defaultValue": ""
+    },
+    "sslCertificateFileName": {
+      "type": "string",
+      "metadata": {
+        "description": "File name for the SSL Certificate"
+      },
+      "defaultValue": ""
+    },
+    "sslCertificatePassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Private Key for the SSL Certificate"
+      },
+      "defaultValue": ""
+    },
+    "selfSignedSSLCertificatePassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Private Key for the Self signed SSL Certificate"
+      }
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "(SAS) Shared Access Token for the deployment artifacts in an Azure Blob Storage Container"
+      },
+      "defaultValue": ""
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "Fully qualified URL for the deployment artifacts location in an Azure Blob Storage Container"
+      },
+      "defaultValue": ""
+    },
+    "serverVirtualMachineOSDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Type for the Operating System (c Drive) Disk for the Server tier of Virtual Machines"
+      }
+    },
+    "portalVirtualMachineOSDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Type for the Operating System (c Drive) Disk for the Portal tier of Virtual Machines"
+      }
+    },
+    "webProxyVirtualMachineOSDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Type for the Operating System (c Drive) Disk for the WebProxy tier of Virtual Machines"
+      }
+    },
+    "dataStoreVirtualMachineOSDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Type for the Operating System (c Drive) Disk for the DataStore tier of Virtual Machines"
+      }
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "Managed Disk Type for the Operating System (c Drive) Disk for the Spatiotemporal Big Data Store tier of Virtual Machines"
+      }
+    },
+    "fileShareVirtualMachineOSDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "Managed Disk Type for the Operating System (c Drive) Disk for the File Share Virtual Machine"
+      }
+    },
+    "serverVirtualMachineOSDiskSize": {
+      "type": "int",
+      "defaultValue": 64,
+      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the Server tier of Virtual Machines"
+      }
+    },
+    "portalVirtualMachineOSDiskSize": {
+      "type": "int",
+      "defaultValue": 64,
+      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the Portal tier of Virtual Machines"
+      }
+    },
+    "webProxyVirtualMachineOSDiskSize": {
+      "type": "int",
+      "defaultValue": 64,
+      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the WebProxy tier of Virtual Machines"
+      }
+    },
+    "dataStoreVirtualMachineOSDiskSize": {
+      "type": "int",
+      "defaultValue": 64,
+      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the DataStore tier of Virtual Machines"
+      }
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
+      "type": "int",
+      "defaultValue": 128,
+      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the Portal tier of Virtual Machines"
+      }
+    },
+    "fileShareVirtualMachineOSDiskSize": {
+      "type": "int",
+      "defaultValue": 64,
+      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "metadata": {
+        "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the File Share Virtual Machine"
+      }
+    },
+    "enableServerVirtualMachineDataDisk": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether an additional Managed Disk is attached to the Server tier of Virtual Machines"
+      }
+    },
+    "enablePortalVirtualMachineDataDisk": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether an additional Managed Disk is attached to the Portal tier of Virtual Machines"
+      }
+    },
+    "enableWebProxyVirtualMachineDataDisk": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether an additional Managed Disk is attached to the WebProxy tier of Virtual Machines"
+      }
+    },
+    "enableDataStoreVirtualMachineDataDisk": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether an additional Managed Disk is attached to the Data Store tier of Virtual Machines"
+      }
+    },
+    "enableSpatiotemporalBigDataStoreVirtualMachineDataDisk": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether an additional Managed Disk is attached to the Spatiotemporal Big Data Store tier of Virtual Machines"
+      }
+    },
+    "enableFileShareVirtualMachineDataDisk": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether an additional Managed Disk is attached to the File Share Virtual Machine"
+      }
+    },
+    "fileShareVirtualMachineDataDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Indicates whether an additional Managed Disk is attached to the Server tier of Virtual Machines"
+      }
+    },
+    "serverVirtualMachineDataDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the Server tier of Virtual Machines"
+      }
+    },
+    "portalVirtualMachineDataDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the Portal tier of Virtual Machines"
+      }
+    },
+    "webProxyVirtualMachineDataDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the WebProxy tier of Virtual Machines"
+      }
+    },
+    "dataStoreVirtualMachineDataDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the Data Store tier of Virtual Machines"
+      }
+    },
+    "spatiotemporalBigDataStoreVirtualMachineDataDiskType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [ "Premium_LRS", "Standard_LRS", "StandardSSD_LRS", "UltraSSD_LRS" ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the Spatiotemporal Big Data Store tier of Virtual Machines"
+      }
+    },
+    "fileShareVirtualMachineDataDiskSize": {
+      "type": "int",
+      "defaultValue": 32,
+      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the File Share Virtual Machine"
+      }
+    },
+    "serverVirtualMachineDataDiskSize": {
+      "type": "int",
+      "defaultValue": 32,
+      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "metadata": {
+        "description": "(Optional) Managed disk size for the additional (Data) disk attached to the Server tier of Virtual Machines"
+      }
+    },
+    "portalVirtualMachineDataDiskSize": {
+      "type": "int",
+      "defaultValue": 32,
+      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the Portal tier of Virtual Machines"
+      }
+    },
+    "webProxyVirtualMachineDataDiskSize": {
+      "type": "int",
+      "defaultValue": 32,
+      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the WebProxy tier of Virtual Machines"
+      }
+    },
+    "dataStoreVirtualMachineDataDiskSize": {
+      "type": "int",
+      "defaultValue": 32,
+      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the DataStore tier of Virtual Machines"
+      }
+    },
+    "spatiotemporalBigDataStoreVirtualMachineDataDiskSize": {
+      "type": "int",
+      "defaultValue": 32,
+      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "metadata": {
+        "description": "(Optional) Managed disk type for the additional (Data) disk attached to the Spatiotemporal Big Data tier of Virtual Machines"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "AzureCloud",
+      "allowedValues": [ "AzureCloud", "AzureGermanCloud", "AzureUSGovernment", "AzureChinaCloud" ],
+      "metadata": {
+        "description": "(Optional) Azure Environment for the deployment. E.g:- Public Azure, U.S. Gov. Cloud, Azure Germany, Azure China"
+      }
+    },
+    "dataStoreTypes": {
+      "type": "string",
+      "defaultValue": "Relational",
+      "metadata": {
+        "description": "(Optional) The types of ArcGIS Data Stores that are enabled for this deployment"
+      }
+    },
+    "imageReferences": {
+      "type": "object",
+      "metadata": {
+        "description": "Details of ArcGIS marketplace image or User Images"
+      }
+    },
+    "enableRDPAccess": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether Remote Desktop Access to the File Share Machine should be enabled."
+      }
+    },
+    "externalRDPPort": {
+      "type": "int",
+      "defaultValue": 3389,
+      "metadata": {
+        "description": "(Optional) External Port number for Remote Desktop Access to the File Share Machine should be enabled."
+      }
+    },
+    "useCloudStorage": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether Azure Storage is used for the server config and portal content store"
+      }
+    },
+    "useAzureFiles": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether Azure Files (SMB protocol) is used for the server config and portal content store"
+      }
+    },
+    "fileShareName": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Name of the file share on the file share host"
+      },
+      "defaultValue": "fileshare"
+    },
+    "cloudStorageAccountName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Name of the Azure Storage Account used. Required if 'useCloudStorage' is set to true"
+      }
+    },
+    "cloudStorageAccountResourceGroupName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Name of the resource group for the Azure Storage Account specified with 'cloudStorageAccountName'. Required if 'useCloudStorage' is set to true"
+      }
+    },
+    "cloudStorageAccountKey": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Storage Account Access Key for the Azure Storage Account specified with 'cloudStorageAccountName'. Required if 'useCloudStorage' is set to true"
+      }
+    },
+    "timeZoneStandardName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Standard Name for the timezone to set for the Virtual Machines in the deployment"
+      }
+    },
+    "enableAutomaticUpdates": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether to enable Automatic (Windows) Operating System updates"
+      }
+    },
+    "joinWindowsDomain": {
+      "type": "bool",
+      "metadata": {
+        "description": "(Optional) Indicates whether the virtual machines should join an existing Windows Active Directory which provides domain join and DNS services in the Virtual Network"
+      },
+      "defaultValue": false
+    },
+    "windowsDomainName": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Domain FQDN where the virtual machine will be joined. Required if joinWindowsDomain = true"
+      },
+      "defaultValue": ""
+    },
+    "windowsDomainAdministratorUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Username for the Active Directory Domain Administrator account where the virtual machine will be joined. Required if joinWindowsDomain = true"
+      },
+      "defaultValue": ""
+    },
+    "windowsDomainAdministratorPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "(Optional) Password for the Active Directory Domain Administrator account where the virtual machine will be joined. Required if joinWindowsDomain = true"
+      },
+      "defaultValue": ""
+    },
+    "debugMode": {
+      "type": "bool",
+      "metadata": {
+        "description": "(Optional) Indicates whether to enable debug settings on the site deployment. Used for troubleshooting only and should not be used for a Production Deployment"
+      },
+      "defaultValue": false
+    },
+    "arcgisDeploymentVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Version number of the ArcGIS Software used in the deployment"
+      },
+      "defaultValue": ""
+    },
+    "omsWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace name"
+      },
+      "defaultValue": ""
+    },
+    "omsWorkspaceResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics Workspace Resource Group Name"
+      },
+      "defaultValue": ""
+    },
+    "recoveryServicesVault": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Recovery services vault name where the VMs will be backed up to. "
+      }
+    },
+    "recoveryServicesVaultResourceGroup": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Recovery services vault Resource Group to be used to backup VMs."
+      }
+    },
+    "backupPolicy": {
+      "type": "string",
+      "defaultValue": "DefaultPolicy",
+      "metadata": {
+        "description": "Backup policy to be used to backup VMs. Backup POlicy defines the schedule of the backup and how long to retain backup copies. By default every vault comes with a 'DefaultPolicy' which canbe used here."
+      }
+    },
+    "deploymentTrackingID": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) deployment Tracking ID based on Orchestrator being Automation or Cloud Builder "
+      },
+      "defaultValue": "c1b63db9-ae1f-46ef-b4ac-967001e57a5d"
+    }
+  },
+  "variables": {
+    "deploymentId": "[uniqueString(resourceGroup().id, concat(parameters('dnsPrefixForPublicIpAddress'),parameters('location')))]",
+    "publicIPAddressResourceName": "[concat(parameters('deploymentPrefix'), 'PublicIP')]",
+    "publicIPAddressRDPResourceName": "[concat(parameters('deploymentPrefix'), 'PublicIP-RDP')]",
+    "loadBalancerResourceName": "[concat(parameters('deploymentPrefix'), 'LoadBalancer')]",
+    "loadBalancerResourceId": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerResourceName'))]",
+    "loadBalancerFrontEndIPConfigName": "LBFE",
+    "loadBalancerFrontEndIPConfigId": "[concat(variables('loadBalancerResourceId'),'/frontendIPConfigurations/', variables('loadBalancerFrontEndIPConfigName'))]",
+    "loadBalancerBackendPoolName": "BackendPool",
+    "loadBalancerBackendPoolId": "[concat(variables('loadBalancerResourceId'),'/backendAddressPools/', variables('loadBalancerBackendPoolName'))]",
+    "internalLoadBalancerServerResourceName": "[concat(parameters('deploymentPrefix'), 'InternalLoadBalancerServer')]",
+    "internalLoadBalancerServerResourceId": "[resourceId('Microsoft.Network/loadBalancers',variables('internalLoadBalancerServerResourceName'))]",
+    "internalLoadBalancerServerFrontEndIPConfigId": "[concat(variables('internalLoadBalancerServerResourceId'),'/frontendIPConfigurations/', variables('loadBalancerFrontEndIPConfigName'))]",
+    "internalLoadBalancerServerBackendPoolId": "[concat(variables('internalLoadBalancerServerResourceId'),'/backendAddressPools/', variables('loadBalancerBackendPoolName'))]",
+    "internalLoadBalancerPortalResourceName": "[concat(parameters('deploymentPrefix'), 'InternalLoadBalancerPortal')]",
+    "internalLoadBalancerPortalResourceId": "[resourceId('Microsoft.Network/loadBalancers',variables('internalLoadBalancerPortalResourceName'))]",
+    "internalLoadBalancerPortalFrontEndIPConfigId": "[concat(variables('internalLoadBalancerPortalResourceId'),'/frontendIPConfigurations/', variables('loadBalancerFrontEndIPConfigName'))]",
+    "internalLoadBalancerPortalBackendPoolId": "[concat(variables('internalLoadBalancerPortalResourceId'),'/backendAddressPools/', variables('loadBalancerBackendPoolName'))]",
+    "loadBalancerRDPResourceName": "[concat(parameters('deploymentPrefix'), 'LoadBalancer-RDP')]",
+    "loadBalancerRDPResourceId": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerRDPResourceName'))]",
+    "loadBalancerRDPFrontEndIPConfigId": "[concat(variables('loadBalancerRDPResourceId'),'/frontendIPConfigurations/', variables('loadBalancerFrontEndIPConfigName'))]",
+    "vnetID": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks',parameters('existingVirtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
+    "nicName": "nic",
+    "environmentToDomain": {
+      "AzureCloud": ".cloudapp.azure.com",
+      "AzureGermanCloud": ".cloudapp.azure.de",
+      "AzureUSGovernment": ".cloudapp.azure.us",
+      "AzureChinaCloud": ".cloudapp.azure.cn"
+    },
+    "environmentToBlobEndpoint": {
+      "AzureCloud": ".blob.core.windows.net",
+      "AzureGermanCloud": ".blob.core.cloudapi.de",
+      "AzureUSGovernment": ".blob.core.usgovcloudapi.net",
+      "AzureChinaCloud": ".blob.core.chinacloudapi.cn"
+    },
+    "serverVirtualMachineNames": "[split(parameters('serverVirtualMachineNames'),',')]",
+    "portalVirtualMachineNames": "[split(parameters('portalVirtualMachineNames'),',')]",
+    "webProxyVirtualMachineNames": "[split(parameters('webProxyVirtualMachineNames'),',')]",
+    "dataStoreVirtualMachineNames": "[split(parameters('dataStoreVirtualMachineNames'),',')]",
+    "spatiotemporalBigDataStoreVirtualMachineNames": "[split(parameters('spatiotemporalBigdataStoreVirtualMachineNames'),',')]",
+    "spatiotemporalBigDataStoreVirtualMachineNameOptions": {
+      "true": "[variables('spatiotemporalBigDataStoreVirtualMachineNames')]",
+      "false": [ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" ]
+    },
+    "numberOfServerVirtualMachines": "[length(variables('serverVirtualMachineNames'))]",
+    "numberOfPortalVirtualMachines": "[length(variables('portalVirtualMachineNames'))]",
+    "numberOfWebProxyVirtualMachines": "[length(variables('webProxyVirtualMachineNames'))]",
+    "numberOfDataStoreVirtualMachines": "[length(variables('dataStoreVirtualMachineNames'))]",
+    "numberOfSpatiotemporalBigDataStoreVirtualMachines": "[length(variables('spatiotemporalBigDataStoreVirtualMachineNames'))]",
+    "serverDscScriptFunction": "ServerConfiguration",
+    "portalDscScriptFunction": "PortalConfiguration",
+    "dataStoreDscScriptFunction": "DataStoreConfiguration",
+    "webProxyDscScriptFunction": "WebProxyConfiguration",
+    "fileShareDscScriptFunction": "FileShareConfiguration",
+    "spatiotemporalBigDataStoreDscScriptFunction": "SpatiotemporalBigDataStoreConfiguration",
+    "webProxyAvailablitySetName": "[concat(parameters('deploymentPrefix'), 'AvailabilitySet-WebProxy')]",
+    "serverAvailablitySetName": "[concat(parameters('deploymentPrefix'), 'AvailabilitySet-Server')]",
+    "portalAvailablitySetName": "[concat(parameters('deploymentPrefix'), 'AvailabilitySet-Portal')]",
+    "dataStoreAvailablitySetName": "[concat(parameters('deploymentPrefix'), 'AvailabilitySet-DataStore')]",
+    "spatiotemporalBigDataStoreAvailablitySetName": "[concat(parameters('deploymentPrefix'), 'AvailabilitySet-SpatiotemporalDataStore')]",
+    "arcgisDeploymentDomain": "[concat(parameters('dnsPrefixForPublicIpAddress'), '.', parameters('location'), variables('environmentToDomain')[parameters('environment')])]",
+    "computeApiVersion": "2018-06-01",
+    "networkApiVersion": "2018-08-01",
+    "computeApiVersionForVirtualMachines": "2018-06-01",
+    "dscExtensionArchiveFileName": "DSC.zip",
+    "dataStoreTypes": "[split(parameters('dataStoreTypes'),',')]",
+    "serverVirtualMachineImageSpecs": "[split(parameters('serverVirtualMachineImageSpecs'),',')]",
+    "portalVirtualMachineImageSpecs": "[split(parameters('portalVirtualMachineImageSpecs'),',')]",
+    "webProxyVirtualMachineImageSpecs": "[split(parameters('webProxyVirtualMachineImageSpecs'),',')]",
+    "dataStoreVirtualMachineImageSpecs": "[split(parameters('dataStoreVirtualMachineImageSpecs'),',')]",
+    "spatiotemporalBigDataStoreVirtualMachineImageSpecs": "[split(parameters('spatiotemporalBigDataStoreVirtualMachineImageSpecs'),',')]",
+    "spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions": {
+      "true": "[variables('spatiotemporalBigDataStoreVirtualMachineImageSpecs')]",
+      "false": [ "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" ]
+    },
+    "loadBalancerInboudNatRulesOptions": {
+      "true": [
+        {
+          "name": "rdp",
+          "properties": {
+            "frontendIPConfiguration": {
+              "id": "[variables('loadBalancerRDPFrontEndIPConfigId')]"
+            },
+            "protocol": "TCP",
+            "frontendPort": "[parameters('externalRDPPort')]",
+            "backendPort": 3389,
+            "idleTimeoutInMinutes": 4,
+            "enableFloatingIP": false
+          }
+        }
+      ],
+      "false": []
+    },
+    "loadBalancerInboundNatRules": "[variables('loadBalancerInboudNatRulesOptions')[string(parameters('enableRDPAccess'))]]",
+    "virtualMachineInboundNatRulesOptions": {
+      "true": [
+        {
+          "id": "[concat(variables('loadBalancerRDPResourceId'),'/inboundNatRules/rdp')]"
+        }
+      ],
+      "false": []
+    },
+    "virtualMachineInboundNatRules": "[variables('virtualMachineInboundNatRulesOptions')[string(parameters('enableRDPAccess'))]]",
+    "enableSpatiotemporalBigDataStore": "[contains(parameters('dataStoreTypes'),'SpatioTemporal')]",
+    "cloudStorageAccountCredentialsPassword": {
+      "false": "placeholder",
+      "true": "[parameters('cloudStorageAccountKey')]"
+    },
+    "cloudStorageAccountCredentialsUserName": {
+      "false": "placeholder",
+      "true": "[concat(parameters('cloudStorageAccountName'),variables('environmentToBlobEndpoint')[parameters('environment')])]"
+    },
+    "rdpTagOption": {
+      "true": "[concat(parameters('dnsPrefixForPublicIpAddress'),'.',parameters('location'), variables('environmentToDomain')[parameters('environment')],':',parameters('externalRDPPort'))]",
+      "false": ""
+    },
+    "cloudStorageOption": {
+      "true": "[concat(substring(parameters('externalDnsHostName'), 0, indexOf(parameters('externalDnsHostName'),'.')), '@', parameters('cloudStorageAccountName'), variables('environmentToBlobEndpoint')[parameters('environment')], '@', parameters('cloudStorageAccountResourceGroupName'), '@',string(parameters('useAzureFiles')))]",
+      "false": ""
+    },
+    "omsWorkspace": {
+      "true": "[concat(parameters('omsWorkspaceName'), '@', parameters('omsWorkspaceResourceGroupName'))]",
+      "false": ""
+    },
+    "omsWorkspaceResourceId": "[if(and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName')))), resourceId(parameters('omsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('omsWorkspaceName')),'')]"
+  },
+  "resources": [
+    { 
+      "apiVersion": "2014-04-01-preview" ,
+      "name":  "[concat('pid-',parameters('deploymentTrackingID'))]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+      "mode" : "Incremental",
+        "template" : { 
+          "$schema":  "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressResourceName')]",
+      "apiVersion": "[variables('computeApiVersion')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "arcgis-deployment-version": "[parameters('arcgisDeploymentVersion')]",
+        "arcgis-deployment-info": "[concat(parameters('dnsPrefixForPublicIpAddress'),'@',parameters('deploymentPrefix'), '@', parameters('deploymentTimestamp'))]",
+        "arcgis-deployment-server-role": "HostingServer",
+        "arcgis-deployment-datastore-types": "[parameters('dataStoreTypes')]",
+        "arcgis-deployment-id": "[variables('deploymentId')]",
+        "arcgis-deployment-rdp-endpoint": "[variables('rdpTagOption')[string(parameters('enableRDPAccess'))]]",
+        "arcgis-deployment-domain": "[parameters('externalDnsHostName')]",
+        "arcgis-deployment-cloud-stg": "[variables('cloudStorageOption')[string(parameters('useCloudStorage'))]]",
+        "arcgis-deployment-oms-workspace":"[variables('omsWorkspace')[string(not(empty(parameters('omsWorkspaceName'))))]]",
+        "displayName": "Public IP Address"
+      },
+      "scale": null,
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "idleTimeoutInMinutes": 4,
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('dnsPrefixForPublicIpAddress')]"
+        }
+      },
+      "dependsOn": []
+    },
+
+    {
+      "condition": "[equals(string(parameters('enableRDPAccess')),'True')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressRDPResourceName')]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Public IP Address - RDP (Optional)",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "scale": null,
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "idleTimeoutInMinutes": 4
+      }
+    },
+
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('loadBalancerResourceName')]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "location": "[parameters('location')]",
+      "sku":{
+        "name": "[parameters('loadBalancerSKU')]"
+      },
+      "tags": {
+        "displayName": "Load Balancer",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "scale": null,
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[variables('loadBalancerFrontEndIPConfigName')]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressResourceName'))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('loadBalancerBackendPoolName')]"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "HTTP",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('loadBalancerFrontEndIPConfigId')]"
+              },
+              "frontendPort": 80,
+              "backendPort": 80,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 4,
+              "protocol": "Tcp",
+              "loadDistribution": "Default",
+              "backendAddressPool": {
+                "id": "[variables('loadBalancerBackendPoolId')]"
+              }
+            }
+          },
+          {
+            "name": "HTTPS",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('loadBalancerFrontEndIPConfigId')]"
+              },
+              "frontendPort": 443,
+              "backendPort": 443,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 4,
+              "protocol": "Tcp",
+              "loadDistribution": "Default",
+              "backendAddressPool": {
+                "id": "[variables('loadBalancerBackendPoolId')]"
+              }
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "lbprobe",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 80,
+              "intervalInSeconds": 30,
+              "numberOfProbes": 3
+            }
+          }
+        ],
+        "outboundNatRules": [],
+        "inboundNatPools": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressResourceName'))]"
+      ]
+    },
+
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('internalLoadBalancerServerResourceName')]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "location": "[parameters('location')]",
+      "sku":{
+        "name": "[parameters('loadBalancerSKU')]"
+      },
+      "tags": {
+        "displayName": "Internal Load Balancer - Server",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "scale": null,
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[variables('loadBalancerFrontEndIPConfigName')]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('loadBalancerBackendPoolName')]"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "HTTP",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('internalLoadBalancerServerFrontEndIPConfigId')]"
+              },
+              "frontendPort": 6080,
+              "backendPort": 6080,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 4,
+              "protocol": "Tcp",
+              "loadDistribution": "Default",
+              "backendAddressPool": {
+                "id": "[variables('internalLoadBalancerServerBackendPoolId')]"
+              }
+            }
+          },
+          {
+            "name": "HTTPS",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('internalLoadBalancerServerFrontEndIPConfigId')]"
+              },
+              "frontendPort": 6443,
+              "backendPort": 6443,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 4,
+              "protocol": "Tcp",
+              "loadDistribution": "Default",
+              "backendAddressPool": {
+                "id": "[variables('internalLoadBalancerServerBackendPoolId')]"
+              }
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "lbprobe",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 6080,
+              "intervalInSeconds": 30,
+              "numberOfProbes": 3
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+
+      ]
+    },
+
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('internalLoadBalancerPortalResourceName')]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "location": "[parameters('location')]",
+      "sku":{
+        "name": "[parameters('loadBalancerSKU')]"
+      },
+      "tags": {
+        "displayName": "Internal Load Balancer - Portal",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "scale": null,
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[variables('loadBalancerFrontEndIPConfigName')]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('loadBalancerBackendPoolName')]"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "HTTP",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('internalLoadBalancerPortalFrontEndIPConfigId')]"
+              },
+              "frontendPort": 7080,
+              "backendPort": 7080,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 4,
+              "protocol": "Tcp",
+              "loadDistribution": "Default",
+              "backendAddressPool": {
+                "id": "[variables('internalLoadBalancerPortalBackendPoolId')]"
+              }
+            }
+          },
+          {
+            "name": "HTTPS",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('internalLoadBalancerPortalFrontEndIPConfigId')]"
+              },
+              "frontendPort": 7443,
+              "backendPort": 7443,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 4,
+              "protocol": "Tcp",
+              "loadDistribution": "Default",
+              "backendAddressPool": {
+                "id": "[variables('internalLoadBalancerPortalBackendPoolId')]"
+              }
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "lbprobe",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 7080,
+              "intervalInSeconds": 30,
+              "numberOfProbes": 3
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+
+      ]
+    },
+
+    {
+      "condition": "[equals(string(parameters('enableRDPAccess')),'True')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[variables('loadBalancerRDPResourceName')]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "location": "[parameters('location')]",
+      "sku":{
+        "name": "[parameters('loadBalancerSKU')]"
+      },
+      "tags": {
+        "displayName": "Load Balancer - RDP (Optional)",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "scale": null,
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[variables('loadBalancerFrontEndIPConfigName')]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressRDPResourceName'))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('loadBalancerBackendPoolName')]"
+          }
+        ],
+        "inboundNatRules": "[variables('loadBalancerInboundNatRules')]",
+        "outboundNatRules": [],
+        "inboundNatPools": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressRDPResourceName'))]"
+      ]
+    },
+    
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(parameters('fileShareVirtualMachineName'), '-', variables('nicName'))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "File Share Network Interface",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerRDPResourceName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "loadBalancerInboundNatRules": "[variables('virtualMachineInboundNatRules')]"
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "condition": "[not(empty(parameters('adminPassword')))]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('fileShareVirtualMachineName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "arcgis-vm-roles": "FileShare",
+        "displayName": "File Share",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "dependsOn": [        
+        "[concat('Microsoft.Network/networkInterfaces/', parameters('fileShareVirtualMachineName'), '-', variables('nicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('fileShareVirtualMachineSize')]"
+        },
+        "osProfile": {
+          "computername": "[parameters('fileShareVirtualMachineName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+            "timeZone": "[parameters('timeZoneStandardName')]"
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-Datacenter-smalldisk",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[concat(parameters('fileShareVirtualMachineName'),'-','OsDisk')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('fileShareVirtualMachineOSDiskType')]"
+            },
+            "diskSizeGB": "[parameters('fileShareVirtualMachineOSDiskSize')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": "[if(equals(string(parameters('enableFileShareVirtualMachineDataDisk')),'True'), json(concat('[{\"name\":\"', concat(parameters('fileShareVirtualMachineName'),'-','DataDisk'), '\", \"lun\": 0, \"createOption\": \"empty\", \"diskSizeGB\": \"', parameters('fileShareVirtualMachineDataDiskSize'), '\", \"managedDisk\": { \"storageAccountType\":\"', parameters('fileShareVirtualMachineDataDiskType') ,'\"} }]')), json('null'))]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces/', concat(parameters('fileShareVirtualMachineName'), '-',variables('nicName')))]"
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "condition": "[and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName'))))]",
+      "name": "[concat(parameters('fileShareVirtualMachineName'),'/LogAnalytics')]",
+      "apiVersion": "2015-05-01-preview",
+      "location":"[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('fileShareVirtualMachineName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "type": "MicrosoftMonitoringAgent",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "workspaceId": "[if(not(empty(variables('omsWorkspaceResourceId'))),reference(variables('omsWorkspaceResourceId'),'2015-11-01-preview').customerId ,json('null'))]"
+        },
+        "protectedSettings": {
+          "workspaceKey": "[if(not(empty(variables('omsWorkspaceResourceId'))),listKeys(variables('omsWorkspaceResourceId'),'2015-11-01-preview').primarySharedKey ,json('null'))]"
+        }
+      }
+    },
+	
+
+    {
+      "condition": "[not(empty(parameters('adminPassword')))]",
+      "name": "[concat(parameters('fileShareVirtualMachineName'),'/DSCConfiguration')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "File Share DSC Script"
+      },
+      "dependsOn": [
+        "[parameters('fileShareVirtualMachineName')]",
+        "[variables('internalLoadBalancerServerResourceName')]",
+        "[variables('internalLoadBalancerPortalResourceName')]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', parameters('fileShareVirtualMachineName')),'/extensions/JoinDomain')]"
+      ],
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.26",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
+          "configuration": {
+            "url": "[concat(parameters('_artifactsLocation'), '/', variables('dscExtensionArchiveFileName'))]",
+            "function": "[variables('fileShareDscScriptFunction')]",
+            "script": "[concat(variables('fileShareDscScriptFunction'), '.ps1')]"
+          },
+          "configurationArguments": {
+            "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
+            "PortalMachineNames": "[parameters('portalVirtualMachineNames')]",
+            "PortalEndpoint": "[reference(variables('internalLoadBalancerPortalResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "ServerEndpoint": "[reference(variables('internalLoadBalancerServerResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "OSDiskSize": "[parameters('fileShareVirtualMachineOSDiskSize')]",
+            "EnableDataDisk": "[string(parameters('enableFileShareVirtualMachineDataDisk'))]",
+            "ExternalDNSHostName": "[parameters('externalDnsHostName')]",
+            "FileShareName": "[parameters('fileShareName')]",
+            "DebugMode": "[string(parameters('debugMode'))]"
+          }
+        },
+        "protectedSettings": {
+          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+          "configurationArguments": {
+            "ServiceCredential": {
+              "userName": "[if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))]",
+              "password": "[if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))]"
+            },
+            "SelfSignedSSLCertificatePassword": {
+              "userName": "Placeholder",
+              "password": "[if(empty(parameters('selfSignedSSLCertificatePassword')), 'Placeholder', parameters('selfSignedSSLCertificatePassword'))]"
+            },
+            "SiteAdministratorCredential": {
+              "userName": "[parameters('primarySiteAdministratorAccountUserName')]",
+              "password": "[parameters('primarySiteAdministratorAccountPassword')]"
+            },
+            "MachineAdministratorCredential": {
+              "userName": "[if(empty(parameters('adminUsername')),'PlaceHolder', parameters('adminUsername'))]",
+              "password": "[if(empty(parameters('adminPassword')),'PlaceHolder', parameters('adminPassword'))]"
+            }
+          }
+        }
+      }
+    },
+
+    {
+      "condition": "[equals(string(parameters('joinWindowsDomain')), 'True')]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('fileShareVirtualMachineName'),'/JoinDomain')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[parameters('fileShareVirtualMachineName')]"
+      ],
+      "tags": {
+        "displayName": "(Optional) File Share Domain Join"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name": "[parameters('windowsDomainName')]",
+          "User": "[parameters('windowsDomainAdministratorUserName')]",
+          "Restart": "true",
+          "Options": 3
+        },
+        "protectedSettings": {
+          "Password": "[parameters('windowsDomainAdministratorPassword')]"
+        }
+      }
+    },
+
+    {
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('serverAvailablitySetName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Server Availability Set",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "properties": {
+        "platformUpdateDomainCount": 2,
+        "platformFaultDomainCount": 2
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('serverVirtualMachineNames')[copyIndex()], '-', variables('nicName'))]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "nic-copy",
+        "count": "[variables('numberOfServerVirtualMachines')]"
+      },
+      "tags": {
+        "displayName": "Server Network Interfaces",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', variables('internalLoadBalancerServerResourceName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[variables('internalLoadBalancerServerBackendPoolId')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "condition": "[not(empty(parameters('adminPassword')))]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('serverVirtualMachineNames')[copyIndex()]]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfServerVirtualMachines')]"
+      },
+      "tags": {
+        "arcgis-vm-roles": "Server",
+        "arcgis-deployment-id": "[variables('deploymentId')]",
+        "displayName": "Server Virtual Machines"
+      },
+      "plan": "[if(equals(string(parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['UseManagedDiskImage']),'True'),json('null'),json(concat('{\"publisher\":\"',parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['Publisher'],'\",\"product\":\"',parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['Offer'],'\",\"name\":\"',parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['SKU'],'\"}')))]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('serverVirtualMachineNames')[copyIndex()], '-', variables('nicName'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('serverAvailablitySetName'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('serverAvailablitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('serverVirtualMachineSize')]"
+        },
+        "osProfile": {
+          "computername": "[variables('serverVirtualMachineNames')[copyIndex()]]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+            "timeZone": "[parameters('timeZoneStandardName')]"
+          }
+        },
+        "storageProfile": {
+          "imageReference": "[if(equals(string(parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['UseManagedDiskImage']),'True'),json(concat('{\"id\":\"',resourceid(string(parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['UserImageResourceGroupName']),'Microsoft.Compute/images',string(parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['UserImageName'])),'\"}')),json(concat('{\"publisher\":\"',parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['Publisher'],'\",\"offer\":\"',parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['Offer'],'\",\"sku\":\"',parameters('imageReferences')[variables('serverVirtualMachineImageSpecs')[copyIndex()]]['SKU'],'\",\"version\":\"latest\"}')))]", 
+          "osDisk": {
+            "name": "[concat(variables('serverVirtualMachineNames')[copyIndex()],'-','OSDisk')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('serverVirtualMachineOSDiskType')]"
+            },
+            "diskSizeGB": "[parameters('serverVirtualMachineOSDiskSize')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": "[if(equals(string(parameters('enableServerVirtualMachineDataDisk')),'True'), json(concat('[{\"name\":\"', concat(variables('serverVirtualMachineNames')[copyIndex()],'-','DataDisk'), '\", \"lun\": 0, \"createOption\": \"empty\", \"diskSizeGB\": \"', parameters('serverVirtualMachineDataDiskSize'), '\", \"managedDisk\": { \"storageAccountType\":\"', parameters('serverVirtualMachineDataDiskType') ,'\"} }]')), json('null'))]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces/', concat(variables('serverVirtualMachineNames')[copyIndex()], '-',variables('nicName')))]"
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "condition": "[and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName'))))]",
+      "name": "[concat(variables('serverVirtualMachineNames')[copyIndex()],'/LogAnalytics')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfServerVirtualMachines')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('serverVirtualMachineNames')[copyIndex()])]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "type": "MicrosoftMonitoringAgent",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "workspaceId": "[if(not(empty(variables('omsWorkspaceResourceId'))),reference(variables('omsWorkspaceResourceId'),'2015-11-01-preview').customerId ,json('null'))]"
+        },
+        "protectedSettings": {
+          "workspaceKey": "[if(not(empty(variables('omsWorkspaceResourceId'))),listKeys(variables('omsWorkspaceResourceId'),'2015-11-01-preview').primarySharedKey ,json('null'))]"
+        }
+      }
+    },
+
+    {
+      "name": "[concat(variables('serverVirtualMachineNames')[copyIndex()],'/DSCConfiguration',copyIndex())]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "DSC-copy",
+        "count": "[variables('numberOfServerVirtualMachines')]",
+        "mode": "serial"
+      },
+      "tags": {
+        "displayName": "Server DSC Scripts"
+      },
+      "dependsOn": [
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', concat(parameters('fileShareVirtualMachineName'))),'/extensions/DSCConfiguration')]",
+        "[variables('serverVirtualMachineNames')[copyIndex()]]",
+        "[variables('internalLoadBalancerServerResourceName')]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', variables('serverVirtualMachineNames')[copyIndex()]),'/extensions/JoinDomain', copyIndex())]"
+      ],
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.26",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
+          "configuration": {
+            "url": "[concat(parameters('_artifactsLocation'), '/', variables('dscExtensionArchiveFileName'))]",
+            "function": "[variables('serverDscScriptFunction')]",
+            "script": "[concat(variables('serverDscScriptFunction'), '.ps1')]"
+          },
+          "configurationArguments": {
+            "ServerLicenseFileUrl": "[if(empty(parameters('serverLicenseFileUrl')),if(empty(parameters('serverLicenseFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('serverLicenseFileName'), parameters('_artifactsLocationSasToken'))), parameters('serverLicenseFileUrl'))]",
+            "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
+            "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",
+            "FileShareName": "[parameters('fileShareName')]",
+            "ServerEndpoint": "[reference(variables('internalLoadBalancerServerResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "ExternalDNSHostName": "[parameters('externalDnsHostName')]",
+            "UseCloudStorage": "[parameters('useCloudStorage')]",
+            "UseAzureFiles": "[parameters('useAzureFiles')]",
+            "OSDiskSize": "[parameters('serverVirtualMachineOSDiskSize')]",
+            "EnableDataDisk": "[string(parameters('enableServerVirtualMachineDataDisk'))]",
+            "DebugMode": "[string(parameters('debugMode'))]"
+          }
+        },
+        "protectedSettings": {
+          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+          "configurationArguments": {
+            "ServiceCredential": {
+              "userName": "[if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))]",
+              "password": "[if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))]"
+            },
+            "SiteAdministratorCredential": {
+              "userName": "[parameters('primarySiteAdministratorAccountUserName')]",
+              "password": "[parameters('primarySiteAdministratorAccountPassword')]"
+            },
+            "SelfSignedSSLCertificatePassword": {
+              "userName": "Placeholder",
+              "password": "[if(empty(parameters('selfSignedSSLCertificatePassword')), 'Placeholder', parameters('selfSignedSSLCertificatePassword'))]"
+            },
+            "StorageAccountCredential": {
+              "userName": "[variables('cloudStorageAccountCredentialsUserName')[string(parameters('useCloudStorage'))]]",
+              "password": "[variables('cloudStorageAccountCredentialsPassword')[string(parameters('useCloudStorage'))]]"
+            }
+          }
+        }
+      }
+    },
+
+    {
+      "condition": "[equals(string(parameters('joinWindowsDomain')), 'True')]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('serverVirtualMachineNames')[copyIndex()],'/JoinDomain',copyIndex())]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "gisServerDomainJoinCopy",
+        "count": "[variables('numberOfServerVirtualMachines')]"
+      },
+      "dependsOn": [
+        "[variables('serverVirtualMachineNames')[copyIndex()]]"
+      ],
+      "tags": {
+        "displayName": "(Optional) Server Domain Join"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name": "[parameters('windowsDomainName')]",
+          "User": "[parameters('windowsDomainAdministratorUserName')]",
+          "Restart": "true",
+          "Options": 3
+        },
+        "protectedSettings": {
+          "Password": "[parameters('windowsDomainAdministratorPassword')]"
+        }
+      }
+    },
+
+    {
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('portalAvailablitySetName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Portal Availability Set",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "properties": {
+        "platformUpdateDomainCount": 2,
+        "platformFaultDomainCount": 2
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+
+
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('portalVirtualMachineNames')[copyIndex()], '-', variables('nicName'))]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "nic-copy",
+        "count": "[variables('numberOfPortalVirtualMachines')]"
+      },
+      "tags": {
+        "displayName": "Portal Network Interfaces",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', variables('internalLoadBalancerPortalResourceName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[variables('internalLoadBalancerPortalBackendPoolId')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "condition": "[not(empty(parameters('adminPassword')))]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('portalVirtualMachineNames')[copyIndex()]]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfPortalVirtualMachines')]"
+      },
+      "tags": {
+        "arcgis-vm-roles": "Portal",
+        "arcgis-deployment-id": "[variables('deploymentId')]",
+        "displayName": "Portal Virtual Machines"
+      },
+      "plan": "[if(equals(string(parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['UseManagedDiskImage']),'True'),json('null'),json(concat('{\"publisher\":\"',parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['Publisher'],'\",\"product\":\"',parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['Offer'],'\",\"name\":\"',parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['SKU'],'\"}')))]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('portalVirtualMachineNames')[copyIndex()], '-', variables('nicName'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('portalAvailablitySetName'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('portalAvailablitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('portalVirtualMachineSize')]"
+        },
+        "osProfile": {
+          "computername": "[variables('portalVirtualMachineNames')[copyIndex()]]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+            "timeZone": "[parameters('timeZoneStandardName')]"
+          }
+        },
+        "storageProfile": {
+          "imageReference": "[if(equals(string(parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['UseManagedDiskImage']),'True'),json(concat('{\"id\":\"',resourceid(string(parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['UserImageResourceGroupName']),'Microsoft.Compute/images',string(parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['UserImageName'])),'\"}')),json(concat('{\"publisher\":\"',parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['Publisher'],'\",\"offer\":\"',parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['Offer'],'\",\"sku\":\"',parameters('imageReferences')[variables('portalVirtualMachineImageSpecs')[copyIndex()]]['SKU'],'\",\"version\":\"latest\"}')))]", 
+          "osDisk": {
+            "name": "[concat(variables('portalVirtualMachineNames')[copyIndex()],'-','OSDisk')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('portalVirtualMachineOSDiskType')]"
+            },
+            "diskSizeGB": "[parameters('portalVirtualMachineOSDiskSize')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": "[if(equals(string(parameters('enablePortalVirtualMachineDataDisk')),'True'), json(concat('[{\"name\":\"', concat(variables('portalVirtualMachineNames')[copyIndex()],'-','DataDisk'), '\", \"lun\": 0, \"createOption\": \"empty\", \"diskSizeGB\": \"', parameters('portalVirtualMachineDataDiskSize'), '\", \"managedDisk\": { \"storageAccountType\":\"', parameters('portalVirtualMachineDataDiskType') ,'\"} }]')), json('null'))]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces/', concat(variables('portalVirtualMachineNames')[copyIndex()], '-',variables('nicName')))]"
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "condition": "[and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName'))))]",
+      "name": "[concat(variables('portalVirtualMachineNames')[copyIndex()],'/LogAnalytics')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfPortalVirtualMachines')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('portalVirtualMachineNames')[copyIndex()])]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "type": "MicrosoftMonitoringAgent",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "workspaceId": "[if(not(empty(variables('omsWorkspaceResourceId'))),reference(variables('omsWorkspaceResourceId'),'2015-11-01-preview').customerId ,json('null'))]"
+        },
+        "protectedSettings": {
+          "workspaceKey": "[if(not(empty(variables('omsWorkspaceResourceId'))),listKeys(variables('omsWorkspaceResourceId'),'2015-11-01-preview').primarySharedKey ,json('null'))]"
+        }
+      }
+    },
+
+    {
+      "name": "[concat(first(variables('portalVirtualMachineNames')),'/DSCConfiguration0')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Portal (Primary) DSC Scripts"
+      },
+      "dependsOn": [
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', concat(parameters('fileShareVirtualMachineName'))),'/extensions/DSCConfiguration')]",
+        "[first(variables('portalVirtualMachineNames'))]",
+        "[variables('internalLoadBalancerServerResourceName')]",
+        "[variables('internalLoadBalancerPortalResourceName')]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', first(variables('portalVirtualMachineNames'))),'/extensions/JoinDomain0')]"
+      ],
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.26",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
+          "configuration": {
+            "url": "[concat(parameters('_artifactsLocation'), '/', variables('dscExtensionArchiveFileName'))]",
+            "function": "[variables('portalDscScriptFunction')]",
+            "script": "[concat(variables('portalDscScriptFunction'), '.ps1')]"
+          },
+          "configurationArguments": {
+            "ServerEndpoint": "[reference(variables('internalLoadBalancerServerResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "PortalEndpoint": "[reference(variables('internalLoadBalancerPortalResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "PortalLicenseFileUrl": "[if(empty(parameters('portalLicenseFileUrl')),if(empty(parameters('portalLicenseFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('portalLicenseFileName'), parameters('_artifactsLocationSasToken'))), parameters('portalLicenseFileUrl'))]",
+            "PortalLicenseUserType": "[if(empty(parameters('portalLicenseUserType')),'',parameters('portalLicenseUserType'))]",
+            "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
+            "PortalMachineNames": "[parameters('portalVirtualMachineNames')]",
+            "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",
+            "FileShareName": "[parameters('fileShareName')]",
+            "ExternalDNSHostName": "[parameters('externalDnsHostName')]",
+            "UseCloudStorage": "[parameters('useCloudStorage')]",
+            "UseAzureFiles": "[parameters('useAzureFiles')]",
+            "OSDiskSize": "[parameters('portalVirtualMachineOSDiskSize')]",
+            "EnableDataDisk": "[string(parameters('enablePortalVirtualMachineDataDisk'))]",
+            "DebugMode": "[string(parameters('debugMode'))]"
+          }
+        },
+        "protectedSettings": {
+          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+          "configurationArguments": {
+            "ServiceCredential": {
+              "userName": "[if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))]",
+              "password": "[if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))]"
+            },
+            "SiteAdministratorCredential": {
+              "userName": "[parameters('primarySiteAdministratorAccountUserName')]",
+              "password": "[parameters('primarySiteAdministratorAccountPassword')]"
+            },
+            "SelfSignedSSLCertificatePassword": {
+              "userName": "Placeholder",
+              "password": "[if(empty(parameters('selfSignedSSLCertificatePassword')), 'Placeholder', parameters('selfSignedSSLCertificatePassword'))]"
+            },
+            "StorageAccountCredential": {
+              "userName": "[variables('cloudStorageAccountCredentialsUserName')[string(parameters('useCloudStorage'))]]",
+              "password": "[variables('cloudStorageAccountCredentialsPassword')[string(parameters('useCloudStorage'))]]"
+            }
+          }
+        }
+      }
+    },
+
+    {
+      "condition": "[greater(variables('numberOfPortalVirtualMachines'), 1)]",
+      "name": "[concat(last(variables('portalVirtualMachineNames')),'/DSCConfiguration1')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Portal (Secondary) DSC Scripts"
+      },
+      "dependsOn": [
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', concat(parameters('fileShareVirtualMachineName'))),'/extensions/DSCConfiguration')]",
+        "[last(variables('portalVirtualMachineNames'))]",
+        "[variables('internalLoadBalancerServerResourceName')]",
+        "[variables('internalLoadBalancerPortalResourceName')]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', first(variables('portalVirtualMachineNames'))),'/extensions/DSCConfiguration', '0')]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', last(variables('portalVirtualMachineNames'))),'/extensions/JoinDomain', string(sub(variables('numberOfPortalVirtualMachines'), 1)))]"
+      ],
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.26",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
+          "configuration": {
+            "url": "[concat(parameters('_artifactsLocation'), '/', variables('dscExtensionArchiveFileName'))]",
+            "function": "[variables('portalDscScriptFunction')]",
+            "script": "[concat(variables('portalDscScriptFunction'), '.ps1')]"
+          },
+          "configurationArguments": {
+            "ServerEndpoint": "[reference(variables('internalLoadBalancerServerResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "PortalEndpoint": "[reference(variables('internalLoadBalancerPortalResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "PortalLicenseFileUrl": "[if(empty(parameters('portalLicenseFileUrl')),if(empty(parameters('portalLicenseFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('portalLicenseFileName'), parameters('_artifactsLocationSasToken'))), parameters('portalLicenseFileUrl'))]",
+            "PortalLicenseUserType": "[if(empty(parameters('portalLicenseUserType')),'',parameters('portalLicenseUserType'))]",
+            "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
+            "PortalMachineNames": "[parameters('portalVirtualMachineNames')]",
+            "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",
+            "FileShareName": "[parameters('fileShareName')]",
+            "ExternalDNSHostName": "[parameters('externalDnsHostName')]",
+            "UseCloudStorage": "[parameters('useCloudStorage')]",
+            "UseAzureFiles": "[parameters('useAzureFiles')]",
+            "OSDiskSize": "[parameters('portalVirtualMachineOSDiskSize')]",
+            "EnableDataDisk": "[string(parameters('enablePortalVirtualMachineDataDisk'))]",
+            "DebugMode": "[string(parameters('debugMode'))]"
+          }
+        },
+        "protectedSettings": {
+          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+          "configurationArguments": {
+            "ServiceCredential": {
+              "userName": "[if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))]",
+              "password": "[if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))]"
+            },
+            "SiteAdministratorCredential": {
+              "userName": "[parameters('primarySiteAdministratorAccountUserName')]",
+              "password": "[parameters('primarySiteAdministratorAccountPassword')]"
+            },
+            "SelfSignedSSLCertificatePassword": {
+              "userName": "Placeholder",
+              "password": "[if(empty(parameters('selfSignedSSLCertificatePassword')), 'Placeholder', parameters('selfSignedSSLCertificatePassword'))]"
+            },
+            "StorageAccountCredential": {
+              "userName": "[variables('cloudStorageAccountCredentialsUserName')[string(parameters('useCloudStorage'))]]",
+              "password": "[variables('cloudStorageAccountCredentialsPassword')[string(parameters('useCloudStorage'))]]"
+            }
+          }
+        }
+      }
+    },
+
+    {
+      "condition": "[equals(string(parameters('joinWindowsDomain')), 'True')]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('portalVirtualMachineNames')[copyIndex()],'/JoinDomain',copyIndex())]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "portalDomainJoinCopy",
+        "count": "[variables('numberOfPortalVirtualMachines')]"
+      },
+      "dependsOn": [
+        "[variables('portalVirtualMachineNames')[copyIndex()]]"
+      ],
+      "tags": {
+        "displayName": "(Optional) Portal Domain Join"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name": "[parameters('windowsDomainName')]",
+          "User": "[parameters('windowsDomainAdministratorUserName')]",
+          "Restart": "true",
+          "Options": 3
+        },
+        "protectedSettings": {
+          "Password": "[parameters('windowsDomainAdministratorPassword')]"
+        }
+      }
+    },
+
+    {
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('dataStoreAvailablitySetName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Data Store Availability Set",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "properties": {
+        "platformUpdateDomainCount": 2,
+        "platformFaultDomainCount": 2
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('dataStoreVirtualMachineNames')[copyIndex()], '-', variables('nicName'))]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "nic-copy",
+        "count": "[variables('numberOfDataStoreVirtualMachines')]"
+      },
+      "tags": {
+        "displayName": "Data Store Network Interfaces",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "dependsOn": [
+
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "condition": "[not(empty(parameters('adminPassword')))]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('dataStoreVirtualMachineNames')[copyIndex()]]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfDataStoreVirtualMachines')]"
+      },
+      "tags": {
+        "arcgis-vm-roles": "DataStore",
+        "arcgis-deployment-id": "[variables('deploymentId')]",
+        "displayName": "Data Store Virtual Machines"
+      },
+      "plan": "[if(equals(string(parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['UseManagedDiskImage']),'True'),json('null'),json(concat('{\"publisher\":\"',parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['Publisher'],'\",\"product\":\"',parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['Offer'],'\",\"name\":\"',parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['SKU'],'\"}')))]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('dataStoreVirtualMachineNames')[copyIndex()], '-', variables('nicName'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('dataStoreAvailablitySetName'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('dataStoreAvailablitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('dataStoreVirtualMachineSize')]"
+        },
+        "osProfile": {
+          "computername": "[variables('dataStoreVirtualMachineNames')[copyIndex()]]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+            "timeZone": "[parameters('timeZoneStandardName')]"
+          }
+        },
+        "storageProfile": {
+          "imageReference": "[if(equals(string(parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['UseManagedDiskImage']),'True'),json(concat('{\"id\":\"',resourceid(string(parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['UserImageResourceGroupName']),'Microsoft.Compute/images',string(parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['UserImageName'])),'\"}')),json(concat('{\"publisher\":\"',parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['Publisher'],'\",\"offer\":\"',parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['Offer'],'\",\"sku\":\"',parameters('imageReferences')[variables('dataStoreVirtualMachineImageSpecs')[copyIndex()]]['SKU'],'\",\"version\":\"latest\"}')))]", 
+          "osDisk": {
+            "name": "[concat(variables('dataStoreVirtualMachineNames')[copyIndex()],'-','OSDisk')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('dataStoreVirtualMachineOSDiskType')]"
+            },
+            "diskSizeGB": "[parameters('dataStoreVirtualMachineOSDiskSize')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": "[if(equals(string(parameters('enableDataStoreVirtualMachineDataDisk')),'True'), json(concat('[{\"name\":\"', concat(variables('dataStoreVirtualMachineNames')[copyIndex()],'-','DataDisk'), '\", \"lun\": 0, \"createOption\": \"empty\", \"diskSizeGB\": \"', parameters('dataStoreVirtualMachineDataDiskSize'), '\", \"managedDisk\": { \"storageAccountType\":\"', parameters('dataStoreVirtualMachineDataDiskType') ,'\"} }]')), json('null'))]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces/', concat(variables('dataStoreVirtualMachineNames')[copyIndex()], '-',variables('nicName')))]"
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "condition": "[and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName'))))]",
+      "name": "[concat(variables('dataStoreVirtualMachineNames')[copyIndex()],'/LogAnalytics')]",
+      "apiVersion": "2015-05-01-preview",
+      "location":"[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfDataStoreVirtualMachines')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('dataStoreVirtualMachineNames')[copyIndex()])]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "type": "MicrosoftMonitoringAgent",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "workspaceId": "[if(not(empty(variables('omsWorkspaceResourceId'))),reference(variables('omsWorkspaceResourceId'),'2015-11-01-preview').customerId ,json('null'))]"
+        },
+        "protectedSettings": {
+          "workspaceKey": "[if(not(empty(variables('omsWorkspaceResourceId'))),listKeys(variables('omsWorkspaceResourceId'),'2015-11-01-preview').primarySharedKey ,json('null'))]"
+        }
+      }
+    },
+
+    {
+      "name": "[concat(variables('dataStoreVirtualMachineNames')[copyIndex()],'/DSCConfiguration',copyIndex())]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "DSC-copy",
+        "count": "[variables('numberOfDataStoreVirtualMachines')]",
+        "mode": "serial"
+      },
+      "tags": {
+        "displayName": "Data Store DSC Scripts"
+      },
+      "dependsOn": [
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', first(variables('serverVirtualMachineNames'))),'/extensions/DSCConfiguration0')]",
+        "[variables('dataStoreVirtualMachineNames')[copyIndex()]]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', variables('dataStoreVirtualMachineNames')[copyIndex()]),'/extensions/JoinDomain', copyIndex())]"
+      ],
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.26",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
+          "configuration": {
+            "url": "[concat(parameters('_artifactsLocation'), '/', variables('dscExtensionArchiveFileName'))]",
+            "function": "[variables('dataStoreDscScriptFunction')]",
+            "script": "[concat(variables('dataStoreDscScriptFunction'), '.ps1')]"
+          },
+          "configurationArguments": {
+            "DataStoreMachineNames": "[parameters('dataStoreVirtualMachineNames')]",
+            "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",
+            "FileShareName": "[parameters('fileShareName')]",
+            "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
+            "OSDiskSize": "[parameters('dataStoreVirtualMachineOSDiskSize')]",
+            "EnableDataDisk": "[string(parameters('enableDataStoreVirtualMachineDataDisk'))]",
+            "ExternalDNSHostName": "[parameters('externalDnsHostName')]",
+            "UseCloudStorage": "[parameters('useCloudStorage')]",
+            "UseAzureFiles": "[parameters('useAzureFiles')]",
+            "DebugMode": "[string(parameters('debugMode'))]"
+          }
+        },
+        "protectedSettings": {
+          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+          "configurationArguments": {
+            "ServiceCredential": {
+              "userName": "[if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))]",
+              "password": "[if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))]"
+            },
+            "SiteAdministratorCredential": {
+              "userName": "[parameters('primarySiteAdministratorAccountUserName')]",
+              "password": "[parameters('primarySiteAdministratorAccountPassword')]"
+            },
+            "StorageAccountCredential": {
+              "userName": "[variables('cloudStorageAccountCredentialsUserName')[string(parameters('useCloudStorage'))]]",
+              "password": "[variables('cloudStorageAccountCredentialsPassword')[string(parameters('useCloudStorage'))]]"
+            }
+          }
+        }
+      }
+    },
+
+    {
+      "condition": "[equals(string(parameters('joinWindowsDomain')), 'True')]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('dataStoreVirtualMachineNames')[copyIndex()],'/JoinDomain',copyIndex())]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "dataStoreDomainJoinCopy",
+        "count": "[length(variables('dataStoreVirtualMachineNames'))]"
+      },
+      "dependsOn": [
+        "[variables('dataStoreVirtualMachineNames')[copyIndex()]]"
+      ],
+      "tags": {
+        "displayName": "(Optional) Data Store Domain Join"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name": "[parameters('windowsDomainName')]",
+          "User": "[parameters('windowsDomainAdministratorUserName')]",
+          "Restart": "true",
+          "Options": 3
+        },
+        "protectedSettings": {
+          "Password": "[parameters('windowsDomainAdministratorPassword')]"
+        }
+      }
+    },
+
+    {
+      "condition": "[equals(string(variables('enableSpatiotemporalBigDataStore')),'True')]",
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('spatiotemporalBigDataStoreAvailablitySetName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "(Optional) Big Data Store Availability Set",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "properties": {
+        "platformUpdateDomainCount": 2,
+        "platformFaultDomainCount": 2
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+
+    {
+      "condition": "[equals(string(variables('enableSpatiotemporalBigDataStore')),'True')]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()], '-', variables('nicName'))]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "nic-copy",
+        "count": "[variables('numberOfSpatiotemporalBigDataStoreVirtualMachines')]"
+      },
+      "tags": {
+        "displayName": "(Optional) Big Data Store Network Interfaces",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "dependsOn": [
+
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "condition": "[and(not(empty(parameters('adminPassword'))), equals(string(variables('enableSpatiotemporalBigDataStore')),'True'))]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()]]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfSpatiotemporalBigDataStoreVirtualMachines')]"
+      },
+      "tags": {
+        "arcgis-vm-roles": "SpatiotemporalDataStore",
+        "arcgis-deployment-id": "[variables('deploymentId')]",
+        "displayName": "(Optional) Big Data Store Virtual Machines"
+      },
+      "plan": "[if(equals(string(parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['UseManagedDiskImage']),'True'),json('null'),json(concat('{\"publisher\":\"',parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['Publisher'],'\",\"product\":\"',parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['Offer'],'\",\"name\":\"',parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['SKU'],'\"}')))]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()], '-', variables('nicName'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('spatiotemporalBigDataStoreAvailablitySetName'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('spatiotemporalBigDataStoreAvailablitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('spatiotemporalBigDataStoreVirtualMachineSize')]"
+        },
+        "osProfile": {
+          "computername": "[variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()]]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+            "timeZone": "[parameters('timeZoneStandardName')]"
+          }
+        },
+        "storageProfile": {
+          "imageReference": "[if(equals(string(parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['UseManagedDiskImage']),'True'),json(concat('{\"id\":\"',resourceid(string(parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['UserImageResourceGroupName']),'Microsoft.Compute/images',string(parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['UserImageName'])),'\"}')),json(concat('{\"publisher\":\"',parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['Publisher'],'\",\"offer\":\"',parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['Offer'],'\",\"sku\":\"',parameters('imageReferences')[string(variables('spatiotemporalBigDataStoreVirtualMachineImageSpecsOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]['SKU'],'\",\"version\":\"latest\"}')))]",
+          "osDisk": {
+            "name": "[concat(variables('spatiotemporalBigDataStoreVirtualMachineNames')[copyIndex()],'-','OSDisk')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('spatiotemporalBigDataStoreVirtualMachineOSDiskType')]"
+            },
+            "diskSizeGB": "[parameters('spatiotemporalBigDataStoreVirtualMachineOSDiskSize')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": "[if(equals(string(parameters('enableSpatiotemporalBigDataStoreVirtualMachineDataDisk')),'True'), json(concat('[{\"name\":\"', concat(variables('spatiotemporalBigDataStoreVirtualMachineNames')[copyIndex()],'-','DataDisk'), '\", \"lun\": 0, \"createOption\": \"empty\", \"diskSizeGB\": \"', parameters('spatiotemporalBigDataStoreVirtualMachineDataDiskSize'), '\", \"managedDisk\": { \"storageAccountType\":\"', parameters('spatiotemporalBigDataStoreVirtualMachineDataDiskType') ,'\"} }]')), json('null'))]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces/', concat(variables('spatiotemporalBigDataStoreVirtualMachineNames')[copyIndex()], '-',variables('nicName')))]"
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "condition": "[and(and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName')))), variables('enableSpatiotemporalBigDataStore'))]",
+      "name": "[concat(variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()],'/LogAnalytics')]",
+      "apiVersion": "2015-05-01-preview",
+      "location":"[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfSpatiotemporalBigDataStoreVirtualMachines')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "type": "MicrosoftMonitoringAgent",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "workspaceId": "[if(not(empty(variables('omsWorkspaceResourceId'))),reference(variables('omsWorkspaceResourceId'),'2015-11-01-preview').customerId ,json('null'))]"
+        },
+        "protectedSettings": {
+          "workspaceKey": "[if(not(empty(variables('omsWorkspaceResourceId'))),listKeys(variables('omsWorkspaceResourceId'),'2015-11-01-preview').primarySharedKey ,json('null'))]"
+        }
+      }
+    },
+
+    {
+      "condition": "[equals(string(variables('enableSpatiotemporalBigDataStore')),'True')]",
+      "name": "[concat(variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()],'/DSCConfiguration',copyIndex())]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "DSC-copy",
+        "count": "[variables('numberOfSpatiotemporalBigDataStoreVirtualMachines')]",
+        "mode": "serial"
+      },
+      "tags": {
+        "displayName": "(Optional) Big Data Store DSC Scripts"
+      },
+      "dependsOn": [
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', first(variables('serverVirtualMachineNames'))),'/extensions/DSCConfiguration0')]",
+        "[variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()]]"
+      ],
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.26",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
+          "configuration": {
+            "url": "[concat(parameters('_artifactsLocation'), '/', variables('dscExtensionArchiveFileName'))]",
+            "function": "[variables('spatiotemporalBigDataStoreDscScriptFunction')]",
+            "script": "[concat(variables('spatiotemporalBigDataStoreDscScriptFunction'), '.ps1')]"
+          },
+          "configurationArguments": {
+            "SpatiotemporalBigDataStoreMachineNames": "[parameters('spatiotemporalBigDataStoreVirtualMachineNames')]",
+            "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",
+            "FileShareName": "[parameters('fileShareName')]",
+            "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
+            "OSDiskSize": "[parameters('spatiotemporalBigDataStoreVirtualMachineOSDiskSize')]",
+            "EnableDataDisk": "[string(parameters('enableSpatiotemporalBigDataStoreVirtualMachineDataDisk'))]",
+            "DebugMode": "[string(parameters('debugMode'))]"
+          }
+        },
+        "protectedSettings": {
+          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+          "configurationArguments": {
+            "ServiceCredential": {
+              "userName": "[if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))]",
+              "password": "[if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))]"
+            },
+            "SiteAdministratorCredential": {
+              "userName": "[parameters('primarySiteAdministratorAccountUserName')]",
+              "password": "[parameters('primarySiteAdministratorAccountPassword')]"
+            }
+          }
+        }
+      }
+    },
+
+    {
+      "condition": "[and(equals(string(variables('enableSpatiotemporalBigDataStore')),'True'), equals(string(parameters('joinWindowsDomain')), 'True'))]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()],'/JoinDomain', copyIndex())]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "bigDataStoreDomainJoinCopy",
+        "count": "[length(variables('spatiotemporalBigDataStoreVirtualMachineNames'))]"
+      },
+      "dependsOn": [
+        "[variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()]]"
+      ],
+      "tags": {
+        "displayName": "(Optional) Big Data Store Domain Join"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name": "[parameters('windowsDomainName')]",
+          "User": "[parameters('windowsDomainAdministratorUserName')]",
+          "Restart": "true",
+          "Options": 3
+        },
+        "protectedSettings": {
+          "Password": "[parameters('windowsDomainAdministratorPassword')]"
+        }
+      }
+    },
+
+    {
+      "apiVersion": "2017-03-30",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('webProxyAvailablitySetName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Web Proxy Availability Set",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "properties": {
+        "platformUpdateDomainCount": 2,
+        "platformFaultDomainCount": 2
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+
+
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('webProxyVirtualMachineNames')[copyIndex()], '-', variables('nicName'))]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "nic-copy",
+        "count": "[variables('numberOfWebProxyVirtualMachines')]"
+      },
+      "tags": {
+        "displayName": "Web Proxy Network Interfaces",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerResourceName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[variables('loadBalancerBackendPoolId')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "condition": "[not(empty(parameters('adminPassword')))]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('webProxyVirtualMachineNames')[copyIndex()]]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfWebProxyVirtualMachines')]"
+      },
+      "tags": {
+        "arcgis-vm-roles": "ReverseProxy",
+        "arcgis-deployment-id": "[variables('deploymentId')]",
+        "displayName": "Web Proxy Servers"
+      },
+      "plan": "[if(equals(string(parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['UseManagedDiskImage']),'True'),json('null'),json(concat('{\"publisher\":\"',parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['Publisher'],'\",\"product\":\"',parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['Offer'],'\",\"name\":\"',parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['SKU'],'\"}')))]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('webProxyVirtualMachineNames')[copyIndex()], '-', variables('nicName'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('webProxyAvailablitySetName'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('webProxyAvailablitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('webProxyVirtualMachineSize')]"
+        },
+        "osProfile": {
+          "computername": "[variables('webProxyVirtualMachineNames')[copyIndex()]]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+            "timeZone": "[parameters('timeZoneStandardName')]"
+          }
+        },
+        "storageProfile": {
+          "imageReference": "[if(equals(string(parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['UseManagedDiskImage']),'True'),json(concat('{\"id\":\"',resourceid(string(parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['UserImageResourceGroupName']),'Microsoft.Compute/images',string(parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['UserImageName'])),'\"}')),json(concat('{\"publisher\":\"',parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['Publisher'],'\",\"offer\":\"',parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['Offer'],'\",\"sku\":\"',parameters('imageReferences')[variables('webProxyVirtualMachineImageSpecs')[copyIndex()]]['SKU'],'\",\"version\":\"latest\"}')))]", 
+          "osDisk": {
+            "name": "[concat(variables('webProxyVirtualMachineNames')[copyIndex()],'-','OSDisk')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('webProxyVirtualMachineOSDiskType')]"
+            },
+            "diskSizeGB": "[parameters('webProxyVirtualMachineOSDiskSize')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": "[if(equals(string(parameters('enableWebProxyVirtualMachineDataDisk')),'True'), json(concat('[{\"name\":\"', concat(variables('webProxyVirtualMachineNames')[copyIndex()],'-','DataDisk'), '\", \"lun\": 0, \"createOption\": \"empty\", \"diskSizeGB\": \"', parameters('webProxyVirtualMachineDataDiskSize'), '\", \"managedDisk\": { \"storageAccountType\":\"', parameters('webProxyVirtualMachineDataDiskType') ,'\"} }]')), json('null'))]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces/', concat(variables('webProxyVirtualMachineNames')[copyIndex()], '-',variables('nicName')))]"
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "condition": "[and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName'))))]",
+      "name": "[concat(variables('webProxyVirtualMachineNames')[copyIndex()],'/LogAnalytics')]",
+      "apiVersion": "2015-05-01-preview",
+      "location":"[parameters('location')]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[variables('numberOfWebProxyVirtualMachines')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('webProxyVirtualMachineNames')[copyIndex()])]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "type": "MicrosoftMonitoringAgent",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "workspaceId": "[if(not(empty(variables('omsWorkspaceResourceId'))),reference(variables('omsWorkspaceResourceId'),'2015-11-01-preview').customerId ,json('null'))]"
+        },
+        "protectedSettings": {
+          "workspaceKey": "[if(not(empty(variables('omsWorkspaceResourceId'))),listKeys(variables('omsWorkspaceResourceId'),'2015-11-01-preview').primarySharedKey ,json('null'))]"
+        }
+      }
+    },
+
+    {
+      "name": "[concat(variables('webProxyVirtualMachineNames')[copyIndex()],'/DSCConfiguration',copyIndex())]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "DSC-copy",
+        "count": "[variables('numberOfWebProxyVirtualMachines')]",
+        "mode": "serial"
+      },
+      "tags": {
+        "displayName": "Web Proxy DSC Scripts"
+      },
+      "dependsOn": [
+        "[variables('webProxyVirtualMachineNames')[copyIndex()]]",
+        "[variables('internalLoadBalancerServerResourceName')]",
+        "[variables('internalLoadBalancerPortalResourceName')]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', variables('webProxyVirtualMachineNames')[copyIndex()]),'/extensions/JoinDomain', copyIndex())]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', first(variables('serverVirtualMachineNames'))),'/extensions/DSCConfiguration', '0')]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', first(variables('portalVirtualMachineNames'))),'/extensions/DSCConfiguration', '0')]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', substring(parameters('portalVirtualMachineNames'), add(1, lastIndexOf(parameters('portalVirtualMachineNames'),',')))),'/extensions/DSCConfiguration', string(sub(variables('numberOfPortalVirtualMachines'),1)))]"
+      ],
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.26",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
+          "configuration": {
+            "url": "[concat(parameters('_artifactsLocation'), '/', variables('dscExtensionArchiveFileName'))]",
+            "function": "[variables('webProxyDscScriptFunction')]",
+            "script": "[concat(variables('webProxyDscScriptFunction'), '.ps1')]"
+          },
+          "configurationArguments": {
+            "SSLCertificateFileUrl": "[if(empty(parameters('sslCertificateFileUrl')),if(empty(parameters('sslCertificateFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('sslCertificateFileName'), parameters('_artifactsLocationSasToken'))), parameters('sslCertificateFileUrl'))]",
+            "ExternalDNSHostName": "[parameters('externalDnsHostName')]",
+            "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",
+            "FileShareName": "[parameters('fileShareName')]",
+            "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
+            "PortalMachineNames": "[parameters('portalVirtualMachineNames')]",
+            "WebProxyMachineNames": "[parameters('webProxyVirtualMachineNames')]",
+            "PortalEndpoint": "[reference(variables('internalLoadBalancerPortalResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "ServerEndpoint": "[reference(variables('internalLoadBalancerServerResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "OSDiskSize": "[parameters('webProxyVirtualMachineOSDiskSize')]",
+            "EnableDataDisk": "[string(parameters('enableWebProxyVirtualMachineDataDisk'))]",
+            "DebugMode": "[string(parameters('debugMode'))]"
+          }
+        },
+        "protectedSettings": {
+          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+          "configurationArguments": {
+            "ServiceCredential": {
+              "userName": "[if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))]",
+              "password": "[if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))]"
+            },
+            "SSLCertificatePassword": {
+              "userName": "PlaceHolder",
+              "password": "[if(empty(parameters('sslCertificatePassword')),'PlaceHolder', parameters('sslCertificatePassword'))]"
+            },
+            "SelfSignedSSLCertificatePassword": {
+              "userName": "Placeholder",
+              "password": "[if(empty(parameters('selfSignedSSLCertificatePassword')), 'Placeholder', parameters('selfSignedSSLCertificatePassword'))]"
+            },
+            "SiteAdministratorCredential": {
+              "userName": "[parameters('primarySiteAdministratorAccountUserName')]",
+              "password": "[parameters('primarySiteAdministratorAccountPassword')]"
+            }
+          }
+        }
+      }
+    },
+
+    {
+      "condition": "[equals(string(parameters('joinWindowsDomain')), 'True')]",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('webProxyVirtualMachineNames')[copyIndex()],'/JoinDomain', copyIndex())]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "webProxyDomainJoinCopy",
+        "count": "[length(variables('webProxyVirtualMachineNames'))]"
+      },
+      "dependsOn": [
+        "[variables('webProxyVirtualMachineNames')[copyIndex()]]"
+      ],
+      "tags": {
+        "displayName": "(Optional) Web Proxy Domain Join"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name": "[parameters('windowsDomainName')]",
+          "User": "[parameters('windowsDomainAdministratorUserName')]",
+          "Restart": "true",
+          "Options": 3
+        },
+        "protectedSettings": {
+          "Password": "[parameters('windowsDomainAdministratorPassword')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "homeAppUrl": {
+      "type": "string",
+      "value": "[concat('https://', parameters('externalDnsHostName'))]"
+    }
+  }
+}

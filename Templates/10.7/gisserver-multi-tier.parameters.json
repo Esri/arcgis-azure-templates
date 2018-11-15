@@ -1,0 +1,255 @@
+{
+  "#schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "deploymentPrefix": {
+      "value": "gm"
+    },
+    "dnsPrefixForPublicIpAddress": {
+      "value": "gmm"
+    },
+    "externalDnsHostName": {
+      "value": "gmm.eastus.cloudapp.azure.com"
+    },
+    "loadBalancerSKU":{
+      "value": "Basic"
+    },
+    "location":{
+      "value": "eastus"
+    },
+    "deploymentTimestamp":{
+      "value": ""
+    },
+    "virtualNetworkResourceGroupName": {
+      "value": ""
+    },
+    "existingVirtualNetworkName": {
+      "value": ""
+    },
+    "subnetName": {
+      "value": "Default"
+    },
+    "virtualMachineNames": {
+      "value": "gmServer-0,gmServer-1"
+    },
+    "virtualMachineImageSpecs":{
+      "value": "0,0"
+    },
+    "fileShareVirtualMachineName": {
+      "value": "gmFileShare"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "fileShareVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "adminUsername": {
+      "value": "madmin"
+    },
+    "adminPassword": {
+      "value": ""
+    },
+    "arcgisServiceAccountUserName": {
+      "value": "arcgis"
+    },
+    "arcgisServiceAccountPassword": {
+      "value": ""
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "value": "admin"
+    },
+    "primarySiteAdministratorAccountPassword": {
+      "value": ""
+    },
+    "serverLicenseFileName": {
+      "value": "server.ecp"
+    },
+    "serverLicenseFileUrl": {
+      "value": ""
+    },
+    "sslCertificateFileUrl": {
+      "value": ""
+    },
+    "sslCertificateFileName": {
+      "value": "wildcard.eastus.cloudapp.azure.com.pfx"
+    },
+    "sslCertificatePassword": {
+      "value": "*.eastus.cloudapp.azure.com"
+    },
+    "_artifactsLocationSasToken": {
+      "value": ""
+    },
+    "_artifactsLocation": {
+      "value": ""
+    },
+    "virtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "virtualMachineOSDiskSize": {
+      "value": 64
+    },
+    "fileShareVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "fileShareVirtualMachineOsDiskSize": {
+      "value": 64
+    },
+    "enableVirtualMachineDataDisk":{
+      "value": false
+    },
+    "enableFileShareVirtualMachineDataDisk":{
+      "value": false
+    },
+    "virtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "virtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "fileShareVirtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "fileShareVirtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "environment": {
+      "value": "AzureCloud"
+    },
+    "serverRole": {
+      "value": "GeneralPurposeServer"
+    },
+    "imageReferences": {
+      "value": {"0":{"UserImageResourceGroupName":"1051sankar","UserImageName":"10284_server","UseManagedDiskImage":true}}
+    },
+    "enableRDPAccess": {
+      "value": true
+    },
+    "externalRDPPort": {
+      "value": 3389
+    },
+    "timeZoneStandardName": {
+      "value": "Pacific Standard Time"
+    },
+    "federateSite": {
+      "value": false
+    },
+    "portalSiteAdministratorAccountUserName": {
+      "value": ""
+    },
+    "portalSiteAdministratorAccountPassword": {
+      "value": ""
+    },
+    "federationEndPointHostName": {
+      "value": ""
+    },
+    "federatedSiteDeploymentId": {
+      "value": ""
+    },
+    "serverFunctions":{
+      "value": ""
+    },
+    "databaseOption":{
+      "value": "None"
+    },
+    "databaseServerAdministratorAccountUserName":{
+      "value": ""
+    },
+    "databaseServerAdministratorAccountPassword":{
+      "value": ""
+    },
+    "databaseUserAccountUserName":{
+      "value": ""
+    },
+    "databaseUserAccountPassword":{
+      "value": ""
+    },
+    "databaseServerHostName":{
+      "value": ""
+    },
+    "databaseName":{
+      "value": ""
+    },
+    "sqlServerVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "sqlServerImageSku": {
+      "value": "Enterprise"
+    },
+    "sqlServerImageOffer": {
+      "value": "SQL2016SP1-WS2016"
+    },
+    "sqlServerVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "sqlServerVirtualMachineOSDiskSize": {
+      "value": 128
+    },
+    "useCloudStorage": {
+      "value": false      
+    },
+    "useAzureFiles": {
+      "value": false
+    },
+    "fileShareName": {
+      "value": "fileshare"
+    },
+    "cloudStorageAccountName": {
+      "value": ""
+    },
+    "cloudStorageAccountResourceGroupName": {
+      "value": ""
+    },
+    "cloudStorageAccountKey": {
+      "value": ""
+    },
+    "cloudStores":{
+      "value":{}
+    },
+    "webProxyMachineNamesOnHostingServer": {
+      "value": ""
+    },
+    "gisServerMachineNamesOnHostingServer": {
+      "value": ""
+    },
+    "portalMachineNamesOnHostingServer": {
+      "value": ""
+    },
+    "enableAutomaticUpdates": {
+      "value": false
+    },
+    "joinWindowsDomain": {
+      "value": false
+    },
+    "windowsDomainName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorUserName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorPassword": {
+      "value": ""
+    },
+    "debugMode": {
+      "value": false
+    },
+    "arcgisDeploymentVersion": {
+      "value": "10.7"
+    },
+    "omsWorkspaceName": {
+      "value": ""
+    },
+    "omsWorkspaceResourceGroupName": {
+      "value": ""
+    },
+    "recoveryServicesVault": {
+      "value": ""
+    },
+    "recoveryServicesVaultResourceGroup": {
+      "value": ""
+    },
+    "backupPolicy": {
+      "value": ""
+    }
+  }
+}
