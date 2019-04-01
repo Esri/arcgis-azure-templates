@@ -205,6 +205,13 @@
       },
       "defaultValue": ""
     },
+    "arcgisServiceAccountIsDomainAccount":{
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether ArcGIS Service Account is a Domain Account."
+      }
+    },
     "primarySiteAdministratorAccountUserName": {
       "type": "string",
       "metadata": {
@@ -345,7 +352,7 @@
     "serverVirtualMachineOSDiskSize": {
       "type": "int",
       "defaultValue": 64,
-      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "allowedValues": [ 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the Server tier of Virtual Machines"
       }
@@ -353,7 +360,7 @@
     "portalVirtualMachineOSDiskSize": {
       "type": "int",
       "defaultValue": 64,
-      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "allowedValues": [ 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 327678 ],
       "metadata": {
         "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the Portal tier of Virtual Machines"
       }
@@ -361,7 +368,7 @@
     "webProxyVirtualMachineOSDiskSize": {
       "type": "int",
       "defaultValue": 64,
-      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "allowedValues": [ 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the WebProxy tier of Virtual Machines"
       }
@@ -369,7 +376,7 @@
     "dataStoreVirtualMachineOSDiskSize": {
       "type": "int",
       "defaultValue": 64,
-      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "allowedValues": [ 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the DataStore tier of Virtual Machines"
       }
@@ -377,7 +384,7 @@
     "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
       "type": "int",
       "defaultValue": 128,
-      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "allowedValues": [ 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the Portal tier of Virtual Machines"
       }
@@ -385,7 +392,7 @@
     "fileShareVirtualMachineOSDiskSize": {
       "type": "int",
       "defaultValue": 64,
-      "allowedValues": [ 64, 128, 512, 1024, 2048 ],
+      "allowedValues": [ 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the File Share Virtual Machine"
       }
@@ -483,7 +490,7 @@
     "fileShareVirtualMachineDataDiskSize": {
       "type": "int",
       "defaultValue": 32,
-      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "allowedValues": [ 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed disk type for the additional (Data) disk attached to the File Share Virtual Machine"
       }
@@ -491,7 +498,7 @@
     "serverVirtualMachineDataDiskSize": {
       "type": "int",
       "defaultValue": 32,
-      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "allowedValues": [ 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed disk size for the additional (Data) disk attached to the Server tier of Virtual Machines"
       }
@@ -499,7 +506,7 @@
     "portalVirtualMachineDataDiskSize": {
       "type": "int",
       "defaultValue": 32,
-      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "allowedValues": [ 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed disk type for the additional (Data) disk attached to the Portal tier of Virtual Machines"
       }
@@ -507,7 +514,7 @@
     "webProxyVirtualMachineDataDiskSize": {
       "type": "int",
       "defaultValue": 32,
-      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "allowedValues": [ 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed disk type for the additional (Data) disk attached to the WebProxy tier of Virtual Machines"
       }
@@ -515,7 +522,7 @@
     "dataStoreVirtualMachineDataDiskSize": {
       "type": "int",
       "defaultValue": 32,
-      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "allowedValues": [ 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed disk type for the additional (Data) disk attached to the DataStore tier of Virtual Machines"
       }
@@ -523,7 +530,7 @@
     "spatiotemporalBigDataStoreVirtualMachineDataDiskSize": {
       "type": "int",
       "defaultValue": 32,
-      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "allowedValues": [ 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed disk type for the additional (Data) disk attached to the Spatiotemporal Big Data tier of Virtual Machines"
       }
@@ -605,11 +612,11 @@
         "description": "(Optional) Storage Account Access Key for the Azure Storage Account specified with 'cloudStorageAccountName'. Required if 'useCloudStorage' is set to true"
       }
     },
-    "timeZoneStandardName": {
+    "timeZoneId": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "(Optional) Standard Name for the timezone to set for the Virtual Machines in the deployment"
+        "description": "(Optional) Standard Id for the timezone to set for the Virtual Machines in the deployment"
       }
     },
     "enableAutomaticUpdates": {
@@ -664,44 +671,38 @@
     "omsWorkspaceName": {
       "type": "string",
       "metadata": {
-        "description": "Log Analytics workspace name"
+        "description": "Azure Monitor Logs workspace name"
       },
       "defaultValue": ""
     },
     "omsWorkspaceResourceGroupName": {
       "type": "string",
       "metadata": {
-        "description": "Log Analytics Workspace Resource Group Name"
+        "description": "Azure Monitor Logs Workspace Resource Group Name"
       },
       "defaultValue": ""
     },
-    "recoveryServicesVault": {
-      "type": "string",
-      "defaultValue": "",
+    "enableServerLogHarvesterPlugin": {
+      "type": "bool",
       "metadata": {
-        "description": "Recovery services vault name where the VMs will be backed up to. "
-      }
+        "description": "Enable Server Log Harvester Plugin "
+      },
+      "defaultValue": false
     },
-    "recoveryServicesVaultResourceGroup": {
+    "gitOpenSSL32BitInstallerURL":{
       "type": "string",
-      "defaultValue": "",
       "metadata": {
-        "description": "Recovery services vault Resource Group to be used to backup VMs."
-      }
-    },
-    "backupPolicy": {
-      "type": "string",
-      "defaultValue": "DefaultPolicy",
-      "metadata": {
-        "description": "Backup policy to be used to backup VMs. Backup POlicy defines the schedule of the backup and how long to retain backup copies. By default every vault comes with a 'DefaultPolicy' which canbe used here."
-      }
+        "description": "Installer URL for Git used for creating certificate using OpenSSL"
+      },
+      "defaultValue": ""
     },
     "deploymentTrackingID": {
       "type": "string",
       "metadata": {
         "description": "(Optional) deployment Tracking ID based on Orchestrator being Automation or Cloud Builder "
       },
-      "defaultValue": "c1b63db9-ae1f-46ef-b4ac-967001e57a5d"
+      
+      "defaultValue": "0599a30c-ae7c-4d2d-94ae-dcf2322b8872"
     }
   },
   "variables": {
@@ -826,7 +827,7 @@
       "false": ""
     },
     "omsWorkspace": {
-      "true": "[concat(parameters('omsWorkspaceName'), '@', parameters('omsWorkspaceResourceGroupName'))]",
+      "true": "[concat(parameters('omsWorkspaceName'), '@', parameters('omsWorkspaceResourceGroupName'), '@', string(parameters('enableServerLogHarvesterPlugin')))]",
       "false": ""
     },
     "omsWorkspaceResourceId": "[if(and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName')))), resourceId(parameters('omsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('omsWorkspaceName')),'')]"
@@ -928,6 +929,9 @@
               "frontendIPConfiguration": {
                 "id": "[variables('loadBalancerFrontEndIPConfigId')]"
               },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerResourceName')), '/probes/lbprobe')]"
+              },
               "frontendPort": 80,
               "backendPort": 80,
               "enableFloatingIP": false,
@@ -944,6 +948,9 @@
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[variables('loadBalancerFrontEndIPConfigId')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerResourceName')), '/probes/lbprobe')]"
               },
               "frontendPort": 443,
               "backendPort": 443,
@@ -1013,6 +1020,9 @@
               "frontendIPConfiguration": {
                 "id": "[variables('internalLoadBalancerServerFrontEndIPConfigId')]"
               },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('internalLoadBalancerServerResourceName')), '/probes/lbprobe')]"
+              },
               "frontendPort": 6080,
               "backendPort": 6080,
               "enableFloatingIP": false,
@@ -1029,6 +1039,9 @@
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[variables('internalLoadBalancerServerFrontEndIPConfigId')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('internalLoadBalancerServerResourceName')), '/probes/lbprobe')]"
               },
               "frontendPort": 6443,
               "backendPort": 6443,
@@ -1096,6 +1109,9 @@
               "frontendIPConfiguration": {
                 "id": "[variables('internalLoadBalancerPortalFrontEndIPConfigId')]"
               },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('internalLoadBalancerPortalResourceName')), '/probes/lbprobe')]"
+              },
               "frontendPort": 7080,
               "backendPort": 7080,
               "enableFloatingIP": false,
@@ -1112,6 +1128,9 @@
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[variables('internalLoadBalancerPortalFrontEndIPConfigId')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('internalLoadBalancerPortalResourceName')), '/probes/lbprobe')]"
               },
               "frontendPort": 7443,
               "backendPort": 7443,
@@ -1234,7 +1253,7 @@
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
             "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
-            "timeZone": "[parameters('timeZoneStandardName')]"
+            "timeZone": "[parameters('timeZoneId')]"
           }
         },
         "storageProfile": {
@@ -1317,6 +1336,7 @@
             "script": "[concat(variables('fileShareDscScriptFunction'), '.ps1')]"
           },
           "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
             "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
             "PortalMachineNames": "[parameters('portalVirtualMachineNames')]",
             "PortalEndpoint": "[reference(variables('internalLoadBalancerPortalResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
@@ -1325,6 +1345,7 @@
             "EnableDataDisk": "[string(parameters('enableFileShareVirtualMachineDataDisk'))]",
             "ExternalDNSHostName": "[parameters('externalDnsHostName')]",
             "FileShareName": "[parameters('fileShareName')]",
+            "GitOpenSSL32BitInstaller": "[parameters('gitOpenSSL32BitInstallerURL')]",
             "DebugMode": "[string(parameters('debugMode'))]"
           }
         },
@@ -1468,7 +1489,7 @@
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
             "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
-            "timeZone": "[parameters('timeZoneStandardName')]"
+            "timeZone": "[parameters('timeZoneId')]"
           }
         },
         "storageProfile": {
@@ -1553,6 +1574,7 @@
             "script": "[concat(variables('serverDscScriptFunction'), '.ps1')]"
           },
           "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
             "ServerLicenseFileUrl": "[if(empty(parameters('serverLicenseFileUrl')),if(empty(parameters('serverLicenseFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('serverLicenseFileName'), parameters('_artifactsLocationSasToken'))), parameters('serverLicenseFileUrl'))]",
             "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
             "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",
@@ -1563,6 +1585,7 @@
             "UseAzureFiles": "[parameters('useAzureFiles')]",
             "OSDiskSize": "[parameters('serverVirtualMachineOSDiskSize')]",
             "EnableDataDisk": "[string(parameters('enableServerVirtualMachineDataDisk'))]",
+            "EnableLogHarvesterPlugin": "[string(parameters('enableServerLogHarvesterPlugin'))]",
             "DebugMode": "[string(parameters('debugMode'))]"
           }
         },
@@ -1711,7 +1734,7 @@
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
             "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
-            "timeZone": "[parameters('timeZoneStandardName')]"
+            "timeZone": "[parameters('timeZoneId')]"
           }
         },
         "storageProfile": {
@@ -1792,6 +1815,7 @@
             "script": "[concat(variables('portalDscScriptFunction'), '.ps1')]"
           },
           "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
             "ServerEndpoint": "[reference(variables('internalLoadBalancerServerResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
             "PortalEndpoint": "[reference(variables('internalLoadBalancerPortalResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
             "PortalLicenseFileUrl": "[if(empty(parameters('portalLicenseFileUrl')),if(empty(parameters('portalLicenseFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('portalLicenseFileName'), parameters('_artifactsLocationSasToken'))), parameters('portalLicenseFileUrl'))]",
@@ -1862,6 +1886,7 @@
             "script": "[concat(variables('portalDscScriptFunction'), '.ps1')]"
           },
           "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
             "ServerEndpoint": "[reference(variables('internalLoadBalancerServerResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
             "PortalEndpoint": "[reference(variables('internalLoadBalancerPortalResourceName')).frontendIPConfigurations[0].properties.privateIPAddress]",
             "PortalLicenseFileUrl": "[if(empty(parameters('portalLicenseFileUrl')),if(empty(parameters('portalLicenseFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('portalLicenseFileName'), parameters('_artifactsLocationSasToken'))), parameters('portalLicenseFileUrl'))]",
@@ -2017,7 +2042,7 @@
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
             "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
-            "timeZone": "[parameters('timeZoneStandardName')]"
+            "timeZone": "[parameters('timeZoneId')]"
           }
         },
         "storageProfile": {
@@ -2101,7 +2126,9 @@
             "script": "[concat(variables('dataStoreDscScriptFunction'), '.ps1')]"
           },
           "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
             "DataStoreMachineNames": "[parameters('dataStoreVirtualMachineNames')]",
+            "DataStoreTypes": "[if(contains(parameters('dataStoreTypes'),'TileCache'),'Relational,TileCache','Relational')]",
             "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",
             "FileShareName": "[parameters('fileShareName')]",
             "ServerMachineNames": "[parameters('serverVirtualMachineNames')]",
@@ -2250,7 +2277,7 @@
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
             "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
-            "timeZone": "[parameters('timeZoneStandardName')]"
+            "timeZone": "[parameters('timeZoneId')]"
           }
         },
         "storageProfile": {
@@ -2334,6 +2361,7 @@
             "script": "[concat(variables('spatiotemporalBigDataStoreDscScriptFunction'), '.ps1')]"
           },
           "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
             "SpatiotemporalBigDataStoreMachineNames": "[parameters('spatiotemporalBigDataStoreVirtualMachineNames')]",
             "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",
             "FileShareName": "[parameters('fileShareName')]",
@@ -2480,7 +2508,7 @@
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
             "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
-            "timeZone": "[parameters('timeZoneStandardName')]"
+            "timeZone": "[parameters('timeZoneId')]"
           }
         },
         "storageProfile": {
@@ -2568,6 +2596,7 @@
             "script": "[concat(variables('webProxyDscScriptFunction'), '.ps1')]"
           },
           "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
             "SSLCertificateFileUrl": "[if(empty(parameters('sslCertificateFileUrl')),if(empty(parameters('sslCertificateFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('sslCertificateFileName'), parameters('_artifactsLocationSasToken'))), parameters('sslCertificateFileUrl'))]",
             "ExternalDNSHostName": "[parameters('externalDnsHostName')]",
             "FileShareMachineName": "[parameters('fileShareVirtualMachineName')]",

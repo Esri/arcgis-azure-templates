@@ -158,7 +158,7 @@
     "cloudStorageAccountKey": {
       "value": ""
     },
-    "timeZoneStandardName": {
+    "timeZoneId": {
       "value": "Pacific Standard Time"
     },
     "enableAutomaticUpdates": {

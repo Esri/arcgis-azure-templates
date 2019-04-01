@@ -134,6 +134,13 @@
       },
       "defaultValue": ""
     },
+    "arcgisServiceAccountIsDomainAccount":{
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether ArcGIS Service Account is a Domain Account."
+      }
+    },
     "primarySiteAdministratorAccountUserName": {
       "type": "string",
       "metadata": {
@@ -236,7 +243,7 @@
     "virtualMachineOSDiskSize": {
       "type": "int",
       "defaultValue": 64,
-      "allowedValues": [ 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "allowedValues": [ 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the Virtual Machine(s)"
       }
@@ -244,7 +251,7 @@
     "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
       "type": "int",
       "defaultValue": 128,
-      "allowedValues": [ 64, 128, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
+      "allowedValues": [ 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed Disk Size for the Operating System (c Drive) Disk for the Portal tier of Virtual Machines"
       }
@@ -282,7 +289,7 @@
     "virtualMachineDataDiskSize": {
       "type": "int",
       "defaultValue": 32,
-      "allowedValues": [ 32, 64, 128, 512, 1024, 2048 ],
+      "allowedValues": [ 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed disk size for the additional (Data) disk attached to the Virtual Machine(s)"
       }
@@ -290,7 +297,7 @@
     "spatiotemporalBigDataStoreVirtualMachineDataDiskSize": {
       "type": "int",
       "defaultValue": 32,
-      "allowedValues": [ 32, 64, 128, 512, 1024, 2048, 4096 ],
+      "allowedValues": [ 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32767 ],
       "metadata": {
         "description": "(Optional) Managed disk type for the additional (Data) disk attached to the Spatiotemporal Big Data tier of Virtual Machines"
       }
@@ -379,11 +386,11 @@
         "description": "(Optional) Storage Account Access Key for the Azure Storage Account specified with 'cloudStorageAccountName'. Required if 'useCloudStorage' is set to true"
       }
     },
-    "timeZoneStandardName": {
+    "timeZoneId": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "(Optional) Standard Name for the timezone to set for the Virtual Machines in the deployment"
+        "description": "(Optional) Standard Id for the timezone to set for the Virtual Machines in the deployment"
       }
     },
     "enableAutomaticUpdates": {
@@ -438,44 +445,30 @@
     "omsWorkspaceName": {
       "type": "string",
       "metadata": {
-        "description": "Log Analytics workspace name"
+        "description": "Azure Monitor Logs workspace name"
       },
       "defaultValue": ""
     },
     "omsWorkspaceResourceGroupName": {
       "type": "string",
       "metadata": {
-        "description": "Log Analytics Workspace Resource Group Name"
+        "description": "Azure Monitor Logs Workspace Resource Group Name"
       },
       "defaultValue": ""
     },
-    "recoveryServicesVault": {
-      "type": "string",
-      "defaultValue": "",
+    "enableServerLogHarvesterPlugin": {
+      "type": "bool",
       "metadata": {
-        "description": "Recovery services vault name where the VMs will be backed up to. "
-      }
-    },
-    "recoveryServicesVaultResourceGroup": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Recovery services vault Resource Group to be used to backup VMs."
-      }
-    },
-    "backupPolicy": {
-      "type": "string",
-      "defaultValue": "DefaultPolicy",
-      "metadata": {
-        "description": "Backup policy to be used to backup VMs. Backup POlicy defines the schedule of the backup and how long to retain backup copies. By default every vault comes with a 'DefaultPolicy' which canbe used here."
-      }
+        "description": "Enable Server Log Harvester Plugin "
+      },
+      "defaultValue": false
     },
     "deploymentTrackingID": {
       "type": "string",
       "metadata": {
         "description": "(Optional) deployment Tracking ID based on Orchestrator being Automation or Cloud Builder "
       },
-      "defaultValue": "c1b63db9-ae1f-46ef-b4ac-967001e57a5d"
+      "defaultValue": "0599a30c-ae7c-4d2d-94ae-dcf2322b8872"
     }
   },
   "variables": {
@@ -581,14 +574,10 @@
     "enableSpatiotemporalBigDataStore": "[not(empty(parameters('spatiotemporalBigDataStoreVirtualMachineNames')))]",
     "enableSpatiotemporalBigDataStoreOnBaseDeploymentMachines": "[contains(parameters('dataStoreTypesForBaseDeploymentServers'), 'SpatioTemporal')]",
     "omsWorkspace": {
-      "true": "[concat(parameters('omsWorkspaceName'), '@', parameters('omsWorkspaceResourceGroupName'))]",
+      "true": "[concat(parameters('omsWorkspaceName'), '@', parameters('omsWorkspaceResourceGroupName'), '@', string(parameters('enableServerLogHarvesterPlugin')))]",
       "false": ""
     },
-    "omsWorkspaceResourceId": "[if(and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName')))), resourceId(parameters('omsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('omsWorkspaceName')),'')]",
-    "backupFabric": "Azure",
-    "v2VmType": "Microsoft.Compute/virtualMachines",
-    "v2VmContainer": "iaasvmcontainer;iaasvmcontainerv2;",
-    "v2Vm": "vm;iaasvmcontainerv2;"
+    "omsWorkspaceResourceId": "[if(and(not(empty(parameters('omsWorkspaceResourceGroupName'))),not(empty(parameters('omsWorkspaceName')))), resourceId(parameters('omsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('omsWorkspaceName')),'')]"
   },
   "resources": [
     { 
@@ -670,6 +659,9 @@
               "frontendIPConfiguration": {
                 "id": "[variables('loadBalancerFrontEndIPConfigId')]"
               },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerResourceName')), '/probes/lbprobe')]"
+              },
               "frontendPort": 80,
               "backendPort": 80,
               "enableFloatingIP": false,
@@ -686,6 +678,9 @@
             "properties": {
               "frontendIPConfiguration": {
                 "id": "[variables('loadBalancerFrontEndIPConfigId')]"
+              },
+              "probe": {
+                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerResourceName')), '/probes/lbprobe')]"
               },
               "frontendPort": 443,
               "backendPort": 443,
@@ -806,7 +801,7 @@
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
             "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
-            "timeZone": "[parameters('timeZoneStandardName')]"
+            "timeZone": "[parameters('timeZoneId')]"
           }
         },
         "storageProfile": {
@@ -889,6 +884,7 @@
             "script": "[concat(variables('dscScriptFunction'), '.ps1')]"
           },
           "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
             "SSLCertificateFileUrl": "[if(empty(parameters('sslCertificateFileUrl')),if(empty(parameters('sslCertificateFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('sslCertificateFileName'), parameters('_artifactsLocationSasToken'))), parameters('sslCertificateFileUrl'))]",
             "ServerLicenseFileUrl": "[if(empty(parameters('serverLicenseFileUrl')),if(empty(parameters('serverLicenseFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('serverLicenseFileName'), parameters('_artifactsLocationSasToken'))), parameters('serverLicenseFileUrl'))]",
             "PortalLicenseFileUrl": "[if(empty(parameters('portalLicenseFileUrl')),if(empty(parameters('portalLicenseFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('portalLicenseFileName'), parameters('_artifactsLocationSasToken'))), parameters('portalLicenseFileUrl'))]",
@@ -902,6 +898,7 @@
             "UseAzureFiles": "[parameters('useAzureFiles')]",
             "OSDiskSize": "[parameters('virtualMachineOSDiskSize')]",
             "EnableDataDisk": "[string(parameters('enableVirtualMachineDataDisk'))]",
+            "EnableLogHarvesterPlugin": "[string(parameters('enableServerLogHarvesterPlugin'))]",
             "DebugMode": "[string(parameters('debugMode'))]"
           }
         },
@@ -1050,7 +1047,7 @@
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
             "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
-            "timeZone": "[parameters('timeZoneStandardName')]"
+            "timeZone": "[parameters('timeZoneId')]"
           }
         },
         "storageProfile": {
@@ -1135,6 +1132,7 @@
             "script": "[concat(variables('spatiotemporalBigDataStoreDscScriptFunction'), '.ps1')]"
           },
           "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
             "SpatiotemporalBigDataStoreMachineNames": "[parameters('spatiotemporalBigDataStoreVirtualMachineNames')]",
             "FileShareMachineName": "[first(variables('virtualMachineNames'))]",
             "FileShareName": "[parameters('fileShareName')]",
@@ -1193,57 +1191,7 @@
       }
     },
 
-    {
-      "condition": "[not(empty(parameters('recoveryServicesVault')))]",  
-      "apiVersion": "2017-05-10",
-      "name": "nestedTemplate",
-      "type": "Microsoft.Resources/deployments",
-      "resourceGroup":  "[parameters('recoveryServicesVaultResourceGroup')]",
-      "properties": {
-          "mode": "Incremental",
-          "template": {
-              "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-              "contentVersion": "1.0.0.0",
-              "parameters": {},
-              "variables": {},
-              "resources": [
-                {
-                  "name": "[concat(parameters('recoveryServicesVault'), '/', variables('backupFabric'), '/', variables('v2VmContainer'), concat(resourceGroup().name,';',parameters('virtualMachineNames')[copyIndex()]), '/', variables('v2Vm'), concat(resourceGroup().name,';',parameters('virtualMachineNames')[copyIndex()]))]",
-                  "apiVersion": "2016-06-01",
-                  "location": "[parameters('location')]",
-                  "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
-                  "copy": {
-                    "name": "v2VmsCopy",
-                    "count": "[variables('numberOfVirtualMachines')]"
-                  },
-                  "properties": {
-                    "protectedItemType": "[variables('v2VmType')]",
-                    "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies',parameters('recoveryServicesVault'),parameters('backupPolicy') )]",
-                    "sourceResourceId": "[resourceId(subscription().subscriptionId,resourceGroup().name,'Microsoft.Compute/virtualMachines',parameters('virtualMachineNames')[copyIndex()])]"
-                  }
-                },     
-                {
-                  "condition": "[equals(string(variables('enableSpatiotemporalBigDataStore')),'True')]",
-                  "name": "[concat(parameters('recoveryServicesVault'), '/', variables('backupFabric'), '/', variables('v2VmContainer'), concat(resourceGroup().name,';',variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()]), '/', variables('v2Vm'), concat(resourceGroup().name,';',variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()]))]",
-                  "apiVersion": "2016-06-01",
-                  
-                  "location": "[parameters('location')]",
-                  "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
-                  "copy": {
-                    "name": "v2VmsCopy",
-                    "count": "[variables('numberOfSpatiotemporalBigDataStoreVirtualMachines')]"
-                  },
-                  "properties": {
-                    "protectedItemType": "[variables('v2VmType')]",
-                    "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies',parameters('recoveryServicesVault'),parameters('backupPolicy') )]",
-                    "sourceResourceId": "[resourceId(subscription().subscriptionId,resourceGroup().name,'Microsoft.Compute/virtualMachines',variables('spatiotemporalBigDataStoreVirtualMachineNameOptions')[string(variables('enableSpatiotemporalBigDataStore'))][copyIndex()])]"
-                  }
-                }
-              ]
-          },
-          "parameters": {}
-      }
-    }
+    
   ],
   "outputs": {
     "homeAppUrl": {

@@ -107,7 +107,7 @@
     "externalRDPPort": {
       "value": 3389
     },
-    "timeZoneStandardName": {
+    "timeZoneId": {
       "value": "Pacific Standard Time"
     },
     "federateSite": {
