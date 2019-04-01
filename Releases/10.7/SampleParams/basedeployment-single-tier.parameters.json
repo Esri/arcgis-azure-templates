@@ -1,75 +1,93 @@
-{
+﻿{
   "#schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "deploymentPrefix": {
-      "value": "ss"
+    "deploymentPrefix":{
+      "value": "bs"
     },
     "dnsPrefixForPublicIpAddress": {
-      "value": "ssm"
+      "value": "bsm"
     },
     "externalDnsHostName": {
-      "value": "ssm.eastus.cloudapp.azure.com"
+      "value": "[TODO - Example (If using Self Signed Certificate) - bms.eastus.cloudapp.azure.com ]"
     },
-    "loadBalancerSKU":{
+    "loadBalancerSKU": {
       "value": "Basic"
     },
-    "location":{
+    "location": {
       "value": "eastus"
     },
     "deploymentTimestamp":{
       "value": ""
     },
     "virtualNetworkResourceGroupName": {
-      "value": ""
+      "value": "[TODO - Resource Group in which the created Virtual Networks is present]"
     },
     "existingVirtualNetworkName": {
-      "value": ""
+      "value": "[TODO - Existing Virtual Network Name]"
     },
     "subnetName": {
-      "value": "Default"
+      "value": "[TODO - Existing Virtual Network Subnet]"
     },
     "virtualMachineNames": {
-      "value": "ssServer-0"
+      "value": "bsWebGIS-Pri"
     },
-    "virtualMachineImageSpecs":{
+    "virtualMachineImageSpecs": {
+      "value": "0"
+    },
+    "spatiotemporalBigdataStoreVirtualMachineNames": {
+      "value": ""
+    },
+    "spatiotemporalBigDataStoreVirtualMachineImageSpecs": {
       "value": "0"
     },
     "virtualMachineSize": {
       "value": "Standard_DS3_v2"
     },
+    "spatiotemporalBigDataStoreVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
     "adminUsername": {
-      "value": "madmin"
+      "value": "[TODO - Machine Administrator Account]"
     },
     "adminPassword": {
-      "value": ""
+      "value": "[TODO]"
     },
     "arcgisServiceAccountUserName": {
       "value": "arcgis"
     },
     "arcgisServiceAccountPassword": {
-      "value": ""
+      "value": "[TODO]"
     },
     "primarySiteAdministratorAccountUserName": {
-      "value": "admin"
+      "value": "[TODO]"
     },
     "primarySiteAdministratorAccountPassword": {
-      "value": ""
+      "value": "[TODO]"
     },
     "serverLicenseFileName": {
-      "value": "server.ecp"
+      "value": "[TODO - server.ecp]"
     },
     "serverLicenseFileUrl": {
       "value": ""
+    },
+    "portalLicenseFileName": {
+      "value": "[TODO - portal.json]"
+    },
+    "portalLicenseFileUrl": {
+      "value": ""
+    },
+    "portalLicenseUserType":{
+      "value": "[TODO - `Creator`]"
     },
     "sslCertificateFileUrl": {
       "value": ""
     },
     "sslCertificateFileName": {
-      "value": "wildcard.eastus.cloudapp.azure.com.pfx"
+      "value": "[TODO - wildcard.eastus.cloudapp.azure.com.pfx]"
     },
     "sslCertificatePassword": {
-      "value": "*.eastus.cloudapp.azure.com"
+      "value": "[TODO - *.eastus.cloudapp.azure.com]"
     },
     "_artifactsLocationSasToken": {
       "value": ""
@@ -77,92 +95,50 @@
     "_artifactsLocation": {
       "value": ""
     },
-    "virtualMachineOSDiskType": {
+    "virtualMachineOSDiskType":{
+      "value": "Premium_LRS"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskType":{
       "value": "Premium_LRS"
     },
     "virtualMachineOSDiskSize": {
       "value": 64
     },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
+      "value": 128
+    },
     "enableVirtualMachineDataDisk":{
+      "value": false
+    },
+    "enableSpatiotemporalBigDataStoreVirtualMachineDataDisk":{
       "value": false
     },
     "virtualMachineDataDiskType": {
       "value": "Premium_LRS"
     },
+    "spatiotemporalBigDataStoreVirtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
     "virtualMachineDataDiskSize": {
-      "value": 64
+      "value": 32
+    },
+    "spatiotemporalBigDataStoreVirtualMachineDataDiskSize": {
+      "value": 32
     },
     "environment": {
       "value": "AzureCloud"
     },
-    "serverRole": {
-      "value": "GeneralPurposeServer"
+    "dataStoreTypes": {
+      "value": "Relational"
+    },
+    "dataStoreTypesForBaseDeploymentServers": {
+      "value": "Relational"
     },
     "imageReferences": {
-      "value": {"0":{"UserImageResourceGroupName":"1051sankar","UserImageName":"10284_server","UseManagedDiskImage":true}}
+      "value": {"0":{"Publisher": "esri","Offer": "arcgis-enterprise-107","SKU": "byol-107","UseManagedDiskImage": false}}
     },
     "enableRDPAccess": {
-      "value": true
-    },
-    "externalRDPPort": {
-      "value": 3389
-    },
-    "timeZoneId": {
-      "value": "Pacific Standard Time"
-    },
-    "federateSite": {
       "value": false
-    },
-    "portalSiteAdministratorAccountUserName": {
-      "value": ""
-    },
-    "portalSiteAdministratorAccountPassword": {
-      "value": ""
-    },
-    "federationEndPointHostName": {
-      "value": ""
-    },
-    "federatedSiteDeploymentId": {
-      "value": ""
-    },
-    "serverFunctions":{
-      "value": ""
-    },
-    "databaseOption":{
-      "value": "None"
-    },
-    "databaseServerAdministratorAccountUserName":{
-      "value": ""
-    },
-    "databaseServerAdministratorAccountPassword":{
-      "value": ""
-    },
-    "databaseUserAccountUserName":{
-      "value": ""
-    },
-    "databaseUserAccountPassword":{
-      "value": ""
-    },
-    "databaseServerHostName":{
-      "value": ""
-    },
-    "databaseName":{
-      "value": ""
-    },
-    "sqlServerVirtualMachineSize": {
-      "value": "Standard_DS3_v2"
-    },
-    "sqlServerImageSku": {
-      "value": "Enterprise"
-    },
-    "sqlServerImageOffer": {
-      "value": "SQL2016SP1-WS2016"
-    },
-    "sqlServerVirtualMachineOSDiskType": {
-      "value": "Premium_LRS"
-    },
-    "sqlServerVirtualMachineOSDiskSize": {
-      "value": 128
     },
     "useCloudStorage": {
       "value": false      
@@ -182,17 +158,8 @@
     "cloudStorageAccountKey": {
       "value": ""
     },
-    "cloudStores":{
-      "value":{}
-    },
-    "webProxyMachineNamesOnHostingServer": {
-      "value": ""
-    },
-    "gisServerMachineNamesOnHostingServer": {
-      "value": ""
-    },
-    "portalMachineNamesOnHostingServer": {
-      "value": ""
+    "timeZoneId": {
+      "value": "Pacific Standard Time"
     },
     "enableAutomaticUpdates": {
       "value": false
@@ -219,15 +186,6 @@
       "value": ""
     },
     "omsWorkspaceResourceGroupName": {
-      "value": ""
-    },
-    "recoveryServicesVault": {
-      "value": ""
-    },
-    "recoveryServicesVaultResourceGroup": {
-      "value": ""
-    },
-    "backupPolicy": {
       "value": ""
     }
   }

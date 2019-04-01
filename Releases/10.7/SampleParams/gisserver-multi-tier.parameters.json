@@ -9,7 +9,7 @@
       "value": "gmm"
     },
     "externalDnsHostName": {
-      "value": "gmm.eastus.cloudapp.azure.com"
+      "value": "[TODO - Example (If using Self Signed Certificate) - bmm.eastus.cloudapp.azure.com ]"
     },
     "loadBalancerSKU":{
       "value": "Basic"
@@ -21,13 +21,13 @@
       "value": ""
     },
     "virtualNetworkResourceGroupName": {
-      "value": ""
+      "value": "[TODO - Resource Group in which the created Virtual Networks is present]"
     },
     "existingVirtualNetworkName": {
-      "value": ""
+      "value": "[TODO - Existing Virtual Network Name]"
     },
     "subnetName": {
-      "value": "Default"
+      "value": "[TODO - Existing Virtual Network Subnet]"
     },
     "virtualMachineNames": {
       "value": "gmServer-0,gmServer-1"
@@ -45,25 +45,25 @@
       "value": "Standard_DS3_v2"
     },
     "adminUsername": {
-      "value": "madmin"
+      "value": "[TODO - Machine Administrator Account]"
     },
     "adminPassword": {
-      "value": ""
+      "value": "[TODO]"
     },
     "arcgisServiceAccountUserName": {
       "value": "arcgis"
     },
     "arcgisServiceAccountPassword": {
-      "value": ""
+      "value": "[TODO]"
     },
     "primarySiteAdministratorAccountUserName": {
-      "value": "admin"
+      "value": "[TODO]"
     },
     "primarySiteAdministratorAccountPassword": {
-      "value": ""
+      "value": "[TODO]"
     },
     "serverLicenseFileName": {
-      "value": "server.ecp"
+      "value": "[TODO - server.ecp]"
     },
     "serverLicenseFileUrl": {
       "value": ""
@@ -72,10 +72,10 @@
       "value": ""
     },
     "sslCertificateFileName": {
-      "value": "wildcard.eastus.cloudapp.azure.com.pfx"
+      "value": "[TODO - wildcard.eastus.cloudapp.azure.com.pfx]"
     },
     "sslCertificatePassword": {
-      "value": "*.eastus.cloudapp.azure.com"
+      "value": "[TODO - *.eastus.cloudapp.azure.com]"
     },
     "_artifactsLocationSasToken": {
       "value": ""
@@ -120,7 +120,7 @@
       "value": "GeneralPurposeServer"
     },
     "imageReferences": {
-      "value": {"0":{"UserImageResourceGroupName":"1051sankar","UserImageName":"10284_server","UseManagedDiskImage":true}}
+      "value": {"0":{"Publisher": "esri","Offer": "arcgis-enterprise-107","SKU": "byol-107","UseManagedDiskImage": false}}
     },
     "enableRDPAccess": {
       "value": true
@@ -240,15 +240,6 @@
       "value": ""
     },
     "omsWorkspaceResourceGroupName": {
-      "value": ""
-    },
-    "recoveryServicesVault": {
-      "value": ""
-    },
-    "recoveryServicesVaultResourceGroup": {
-      "value": ""
-    },
-    "backupPolicy": {
       "value": ""
     }
   }

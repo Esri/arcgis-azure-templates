@@ -9,7 +9,7 @@
       "value": "bmm"
     },
     "externalDnsHostName": {
-      "value": "bmm.eastus.cloudapp.azure.com"
+      "value": "[TODO - Example (If using Self Signed Certificate) - bmm.eastus.cloudapp.azure.com ]"
     },
     "loadBalancerSKU":{
       "value": "Basic"
@@ -21,13 +21,13 @@
       "value": ""
     },
     "virtualNetworkResourceGroupName": {
-      "value": "bmm"
+      "value": "[TODO - Resource Group in which the created Virtual Networks is present]"
     },
     "existingVirtualNetworkName": {
-      "value": "bmmvnet"
+      "value": "[TODO - Existing Virtual Network Name]"
     },
     "subnetName": {
-      "value": "Default"
+      "value": "[TODO - Existing Virtual Network Subnet]"
     },
     "serverVirtualMachineNames": {
       "value": "bmServer-0,bmServer-1"
@@ -81,49 +81,49 @@
       "value": "Standard_DS3_v2"
     },
     "adminUsername": {
-      "value": "madmin"
+      "value": "[TODO - Machine Administrator Account]"
     },
     "adminPassword": {
-      "value": ""
+      "value": "[TODO]"
     },
     "arcgisServiceAccountUserName": {
       "value": "arcgis"
     },
     "arcgisServiceAccountPassword": {
-      "value": ""
+      "value": "[TODO]"
     },
     "primarySiteAdministratorAccountUserName": {
-      "value": "admin"
+      "value": "[TODO]"
     },
     "primarySiteAdministratorAccountPassword": {
-      "value": ""
+      "value": "[TODO]"
     },
     "serverLicenseFileName": {
-      "value": "server.ecp"
+      "value": "[TODO - server.ecp]"
     },
     "serverLicenseFileUrl": {
       "value": ""
     },
     "portalLicenseFileName": {
-      "value": "portal.json"
+      "value": "[TODO - portal.json]"
     },
     "portalLicenseFileUrl": {
       "value": ""
     },
     "portalLicenseUserType":{
-      "value": "Creator"
+      "value": "[TODO - `Creator`]"
     },
     "sslCertificateFileUrl": {
       "value": ""
     },
     "sslCertificateFileName": {
-      "value": "wildcard.eastus.cloudapp.azure.com.pfx"
+      "value": "[TODO - wildcard.eastus.cloudapp.azure.com.pfx]"
     },
     "sslCertificatePassword": {
-      "value": "*.eastus.cloudapp.azure.com"
+      "value": "[TODO - *.eastus.cloudapp.azure.com]"
     },
     "selfSignedSSLCertificatePassword": {
-      "value":"bmm.eastus.cloudapp.azure.com"
+      "value":"[TODO - externalDNSName if using self signed certificate]"
     },
     "_artifactsLocationSasToken": {
       "value": ""
@@ -228,7 +228,7 @@
       "value": "Relational,TileCache,SpatioTemporal"
     },
     "imageReferences": {
-      "value": {"0":{"UserImageResourceGroupName":"1051sankar","UserImageName":"10284_server","UseManagedDiskImage":true}}
+      "value": {"0":{"Publisher": "esri","Offer": "arcgis-enterprise-107","SKU": "byol-107","UseManagedDiskImage": false}}
     },
     "enableRDPAccess": {
       "value": true
@@ -282,15 +282,6 @@
       "value": ""
     },
     "omsWorkspaceResourceGroupName": {
-      "value": ""
-    },
-    "recoveryServicesVault": {
-      "value": ""
-    },
-    "recoveryServicesVaultResourceGroup": {
-      "value": ""
-    },
-    "backupPolicy": {
       "value": ""
     }
   }
