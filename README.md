@@ -1,5 +1,5 @@
 "# Esri-ARM-Templates" 
-1. Open a Cloud Shell
+1. Launch cloudshell.azure.com  (or Azure Portal > Launch cloud shell)
 2. Clone this repo using git clone locally and upload the necessary artifacts (DSC.zip, Template File, Template Parameter File, deployArcGISSite.sh) to cloud shell fileshare.
 3. Upload License and Cretificate File to cloud shell fileshare.
 4. Edit the the ARM Templates parameters file you want to deploy.
