@@ -81,11 +81,11 @@ done
 echo "Start the deployment with name $deploymentName to resource group $resourceGroupName"
 az group deployment create --name $deploymentName --mode Incremental --resource-group $resourceGroupName --template-file $templateFileName --parameters $tempFile
 
-declare isMultiTier = $(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); print('webProxyVirtualMachineNames' in params['parameters'])")
+declare isMultiTier=$(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); print('webProxyVirtualMachineNames' in params['parameters'])")
 if [ "$isMultiTier" = "True" ]; then
-    deploymentPrefix = $(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); print(params['parameters']['deploymentPrefix'])")
-    externalRDPPort =  $(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); print(params['parameters']['externalRDPPort'])")
-    ipaddr = $(az network public-ip show -n "${deploymentPrefix}PublicIP-RDP" -g $resourceGroupName --query ipAddress)
+    deploymentPrefix=$(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); print(params['parameters']['deploymentPrefix'])")
+    externalRDPPort=$(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); print(params['parameters']['externalRDPPort'])")
+    ipaddr=$(az network public-ip show -n "${deploymentPrefix}PublicIP-RDP" -g $resourceGroupName --query ipAddress)
     az resource tag --tags "arcgis-deployment-rdp-endpoint=${ipaddr}:${externalRDPPort}" -g "${deploymentPrefix}PublicIP" -n $resourceGroupName --resource-type "Microsoft.Network/publicIPAddresses"
 fi
 
