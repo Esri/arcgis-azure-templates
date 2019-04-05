@@ -1189,7 +1189,7 @@
           "Password": "[parameters('windowsDomainAdministratorPassword')]"
         }
       }
-    },
+    }
 
     
   ],
