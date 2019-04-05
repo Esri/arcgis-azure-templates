@@ -6,7 +6,7 @@ IFS=$'\n\t'
 # -o: prevents errors in a pipeline from being masked
 # IFS new value is less likely to cause confusing bugs when looping arrays or arguments (e.g. $@)
 
-usage() { echo "Usage: $0 -f <templateFilePath> -p <templateParametersFilePath> -g <resourceGroupName> -l <resourceGroupLocation> -s <storageAccountName> -r <storageAccountResourceGroupName>" 1>&2; exit 1; }
+usage() { echo "Usage: $0 -f <templateFileName> -p <templateParametersFileName> -g <resourceGroupName> -l <resourceGroupLocation> -s <storageAccountName> -r <storageAccountResourceGroupName>" 1>&2; exit 1; }
 
 declare subscriptionId=""
 declare resourceGroupName=""
@@ -17,10 +17,10 @@ declare resourceGroupLocation=""
 while getopts ":f:p:g:s:l:r:" arg; do
     case "${arg}" in
         f)
-            templateFilePath=${OPTARG}
+            templateFileName=${OPTARG}
             ;;
         p)
-            templateParametersFilePath=${OPTARG}
+            templateParametersFileName=${OPTARG}
             ;;
         g)
             resourceGroupName=${OPTARG}
@@ -67,7 +67,7 @@ token=$(az storage container generate-sas --name $storageContainerName --expiry 
 
 # Generate the deployment artifacts parameters
 tempFile="$deploymentName.parameters.json"
-$(python -c "import sys, json; params = json.load(open('$templateParametersFilePath')); params['parameters']['_artifactsLocationSasToken']={'value': '?$token'}; params['parameters']['_artifactsLocation']={'value': '$artifactsLocation'};json.dump(params, open('$tempFile','w'))")
+$(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); params['parameters']['_artifactsLocationSasToken']={'value': '?$token'}; params['parameters']['_artifactsLocation']={'value': '$artifactsLocation'};json.dump(params, open('$tempFile','w'))")
 
 # Upload artifacts to blob storage
 for filename in *.ecp *.zip *.pfx *.prvc *.json
@@ -79,12 +79,12 @@ done
 
 # Start the deployment
 echo "Start the deployment with name $deploymentName to resource group $resourceGroupName"
-az group deployment create --name $deploymentName --mode Incremental --resource-group $resourceGroupName --template-file $templateFilepath --parameters $tempFile
+az group deployment create --name $deploymentName --mode Incremental --resource-group $resourceGroupName --template-file $templateFileName --parameters $tempFile
 
-declare isMultiTier=$(python -c "import sys, json; params = json.load(open('$templateParametersFilePath')); print('webProxyVirtualMachineNames' in params['parameters'])")
+declare isMultiTier=$(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); print('webProxyVirtualMachineNames' in params['parameters'])")
 if [ "$isMultiTier" = "True" ]; then
-    deploymentPrefix=$(python -c "import sys, json; params = json.load(open('$templateParametersFilePath')); print(params['parameters']['deploymentPrefix'])")
-    externalRDPPort=$(python -c "import sys, json; params = json.load(open('$templateParametersFilePath')); print(params['parameters']['externalRDPPort'])")
+    deploymentPrefix=$(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); print(params['parameters']['deploymentPrefix'])")
+    externalRDPPort=$(python -c "import sys, json; params = json.load(open('$templateParametersFileName')); print(params['parameters']['externalRDPPort'])")
     ipaddr=$(az network public-ip show -n "${deploymentPrefix}PublicIP-RDP" -g $resourceGroupName --query ipAddress)
     az resource tag --tags "arcgis-deployment-rdp-endpoint=${ipaddr}:${externalRDPPort}" -g "${deploymentPrefix}PublicIP" -n $resourceGroupName --resource-type "Microsoft.Network/publicIPAddresses"
 fi
