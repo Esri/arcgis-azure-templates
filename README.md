@@ -1,7 +1,7 @@
 # ArcGIS Azure Resource Manager (ARM) Templates
 
 ## Overview
-This repository contains Azure Resource Manager (ARM) Templates and a bash script to help you deploy an ArcGIS Enterprise Deployment using Azure Cloud Shell.
+This repository contains Azure Resource Manager (ARM) Templates and helper scripts to help you deploy ArcGIS Enterprise using automation options.
 
 Sample parameter files for different ArcGIS deployment patterns are available under Release/{arcgis-release-version}/SampleParams.
 
@@ -14,7 +14,7 @@ Find a bug or want to request a new feature? Please let us know by submitting an
 Esri welcomes contributions from anyone and everyone. Please see our guidelines for contributing.
 
 ## Licensing
-Copyright 2018 Esri
+Copyright 2019 Esri
 
 Licensed under the Apache License, Version 2.0 (the "License"); You may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,4 +23,4 @@ Unless required by applicable law or agreed to in writing, software distributed 
 A copy of the license is available in the repository's License.txt file.
 
 [](Esri Tags: ArcGIS ARM Templates) 
-[](Esri Language: Bash)
+[](Esri Language: Shell Scripts)
