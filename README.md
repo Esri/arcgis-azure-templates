@@ -1,7 +1,7 @@
 # ArcGIS Azure Resource Manager (ARM) Templates
 
 ## Overview
-This repository contains Azure Resource Manager (ARM) Templates and helper scripts to help you deploy ArcGIS Enterprise using automation options.
+This repository contains Azure Resource Manager (ARM) Templates and helper scripts to help you deploy ArcGIS Enterprise using command line and other automation environments such as Azure Cloud Shell (cloudshell.azure.com).
 
 Sample parameter files for different ArcGIS deployment patterns are available under Release/{arcgis-release-version}/SampleParams.
 
