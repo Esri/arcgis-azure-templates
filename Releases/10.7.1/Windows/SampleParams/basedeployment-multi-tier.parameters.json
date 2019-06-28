@@ -1,0 +1,288 @@
+{
+  "#schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "deploymentPrefix": {
+      "value": "bm"
+    },
+    "dnsPrefixForPublicIpAddress": {
+      "value": "bmm"
+    },
+    "externalDnsHostName": {
+      "value": "[TODO - Example (If using Self Signed Certificate) - bmm.eastus.cloudapp.azure.com ]"
+    },
+    "loadBalancerSKU":{
+      "value": "Basic"
+    },
+    "location":{
+      "value": "eastus"
+    },
+    "deploymentTimestamp":{
+      "value": ""
+    },
+    "virtualNetworkResourceGroupName": {
+      "value": "[TODO - Resource Group in which the created Virtual Networks is present]"
+    },
+    "existingVirtualNetworkName": {
+      "value": "[TODO - Existing Virtual Network Name]"
+    },
+    "subnetName": {
+      "value": "[TODO - Existing Virtual Network Subnet]"
+    },
+    "serverVirtualMachineNames": {
+      "value": "bmServer-0,bmServer-1"
+    },
+    "serverVirtualMachineImageSpecs": {
+      "value": "0,0"
+    },
+    "portalVirtualMachineNames": {
+      "value": "bmPortal-Pri,bmPortal-Sec"
+    },
+    "portalVirtualMachineImageSpecs": {
+      "value": "0,0"
+    },
+    "webProxyVirtualMachineNames": {
+      "value": "bmWeb-0,bmWeb-1"
+    },
+    "webProxyVirtualMachineImageSpecs": {
+      "value": "0,0"
+    },
+    "dataStoreVirtualMachineNames": {
+      "value": "bmDataStore-Pri,bmDataStore-Sby"
+    },
+    "dataStoreVirtualMachineImageSpecs": {
+      "value": "0,0"
+    },
+    "spatiotemporalBigdataStoreVirtualMachineNames": {
+      "value": "bmSpatioT-0,bmSpatioT-1,bmSpatioT-2"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineImageSpecs": {
+      "value": "0,0,0"
+    },
+    "fileShareVirtualMachineName": {
+      "value": "bmFileShare"
+    },
+    "fileShareVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "serverVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "portalVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "webProxyVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "dataStoreVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineSize":{
+      "value": "Standard_DS3_v2"
+    },
+    "adminUsername": {
+      "value": "[TODO - Machine Administrator Account]"
+    },
+    "adminPassword": {
+      "value": "[TODO]"
+    },
+    "arcgisServiceAccountUserName": {
+      "value": "arcgis"
+    },
+    "arcgisServiceAccountPassword": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountPassword": {
+      "value": "[TODO]"
+    },
+    "serverLicenseFileName": {
+      "value": "[TODO - server.ecp]"
+    },
+    "serverLicenseFileUrl": {
+      "value": ""
+    },
+    "portalLicenseFileName": {
+      "value": "[TODO - portal.json]"
+    },
+    "portalLicenseFileUrl": {
+      "value": ""
+    },
+    "portalLicenseUserType":{
+      "value": "[TODO - `Creator`]"
+    },
+    "sslCertificateFileUrl": {
+      "value": ""
+    },
+    "sslCertificateFileName": {
+      "value": "[TODO - wildcard.eastus.cloudapp.azure.com.pfx]"
+    },
+    "sslCertificatePassword": {
+      "value": "[TODO - *.eastus.cloudapp.azure.com]"
+    },
+    "selfSignedSSLCertificatePassword": {
+      "value":"[TODO - externalDNSName if using self signed certificate]"
+    },
+    "_artifactsLocationSasToken": {
+      "value": ""
+    },
+    "_artifactsLocation": {
+      "value": ""
+    },
+    "serverVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "portalVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "webProxyVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "dataStoreVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "fileShareVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "serverVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "portalVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "webProxyVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "dataStoreVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
+      "value": 128
+    },
+    "fileShareVirtualMachineOsDiskSize": {
+      "value": 64
+    },
+    "enableServerVirtualMachineDataDisk":{
+      "value": false
+    },
+    "enablePortalVirtualMachineDataDisk":{
+      "value": false
+    },
+    "enableWebProxyVirtualMachineDataDisk":{
+      "value": false
+    },
+    "enableDataStoreVirtualMachineDataDisk":{
+      "value": false
+    },
+    "enableSpatiotemporalBigDataStoreVirtualMachineDataDisk":{
+      "value": false
+    },
+    "enableFileShareVirtualMachineDataDisk":{
+      "value": false
+    },
+    "fileShareVirtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "serverVirtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "portalVirtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "webProxyVirtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "dataStoreVirtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "fileShareVirtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "serverVirtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "portalVirtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "webProxyVirtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "dataStoreVirtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "spatiotemporalBigDataStoreVirtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "environment": {
+      "value": "AzureCloud"
+    },
+    "dataStoreTypes":{
+      "value": "Relational,TileCache,SpatioTemporal"
+    },
+    "imageReferences": {
+      "value": {"0":{"Publisher": "esri","Offer": "arcgis-enterprise-107","SKU": "byol-1071","UseManagedDiskImage": false}}
+    },
+    "enableRDPAccess": {
+      "value": true
+    },
+    "externalRDPPort":{
+      "value": 3389
+    },
+    "useCloudStorage": {
+      "value": false      
+    },
+    "useAzureFiles": {
+      "value": false
+    },
+    "fileShareName": {
+      "value": "fileshare"
+    },
+    "cloudStorageAccountName": {
+      "value": ""
+    },
+    "cloudStorageAccountResourceGroupName": {
+      "value": ""
+    },
+    "cloudStorageAccountKey": {
+      "value": ""
+    },
+    "timeZoneId": {
+      "value": "Pacific Standard Time"
+    },
+    "enableAutomaticUpdates": {
+      "value": false
+    },
+    "joinWindowsDomain": {
+      "value": false
+    },
+    "windowsDomainName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorUserName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorPassword": {
+      "value": ""
+    },
+    "debugMode": {
+      "value": false
+    },
+    "arcgisDeploymentVersion": {
+      "value": "10.7.1"
+    },
+    "omsWorkspaceName": {
+      "value": ""
+    },
+    "omsWorkspaceResourceGroupName": {
+      "value": ""
+    }
+  }
+}

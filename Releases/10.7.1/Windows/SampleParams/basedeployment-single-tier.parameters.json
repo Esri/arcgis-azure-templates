@@ -1,0 +1,192 @@
+﻿{
+  "#schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "deploymentPrefix":{
+      "value": "bs"
+    },
+    "dnsPrefixForPublicIpAddress": {
+      "value": "bsm"
+    },
+    "externalDnsHostName": {
+      "value": "[TODO - Example (If using Self Signed Certificate) - bms.eastus.cloudapp.azure.com ]"
+    },
+    "loadBalancerSKU": {
+      "value": "Basic"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "deploymentTimestamp":{
+      "value": ""
+    },
+    "virtualNetworkResourceGroupName": {
+      "value": "[TODO - Resource Group in which the created Virtual Networks is present]"
+    },
+    "existingVirtualNetworkName": {
+      "value": "[TODO - Existing Virtual Network Name]"
+    },
+    "subnetName": {
+      "value": "[TODO - Existing Virtual Network Subnet]"
+    },
+    "virtualMachineNames": {
+      "value": "bsWebGIS-Pri"
+    },
+    "virtualMachineImageSpecs": {
+      "value": "0"
+    },
+    "spatiotemporalBigdataStoreVirtualMachineNames": {
+      "value": ""
+    },
+    "spatiotemporalBigDataStoreVirtualMachineImageSpecs": {
+      "value": "0"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "adminUsername": {
+      "value": "[TODO - Machine Administrator Account]"
+    },
+    "adminPassword": {
+      "value": "[TODO]"
+    },
+    "arcgisServiceAccountUserName": {
+      "value": "arcgis"
+    },
+    "arcgisServiceAccountPassword": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountPassword": {
+      "value": "[TODO]"
+    },
+    "serverLicenseFileName": {
+      "value": "[TODO - server.ecp]"
+    },
+    "serverLicenseFileUrl": {
+      "value": ""
+    },
+    "portalLicenseFileName": {
+      "value": "[TODO - portal.json]"
+    },
+    "portalLicenseFileUrl": {
+      "value": ""
+    },
+    "portalLicenseUserType":{
+      "value": "[TODO - `Creator`]"
+    },
+    "sslCertificateFileUrl": {
+      "value": ""
+    },
+    "sslCertificateFileName": {
+      "value": "[TODO - wildcard.eastus.cloudapp.azure.com.pfx]"
+    },
+    "sslCertificatePassword": {
+      "value": "[TODO - *.eastus.cloudapp.azure.com]"
+    },
+    "_artifactsLocationSasToken": {
+      "value": ""
+    },
+    "_artifactsLocation": {
+      "value": ""
+    },
+    "virtualMachineOSDiskType":{
+      "value": "Premium_LRS"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskType":{
+      "value": "Premium_LRS"
+    },
+    "virtualMachineOSDiskSize": {
+      "value": 128
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
+      "value": 128
+    },
+    "enableVirtualMachineDataDisk":{
+      "value": false
+    },
+    "enableSpatiotemporalBigDataStoreVirtualMachineDataDisk":{
+      "value": false
+    },
+    "virtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineDataDiskType": {
+      "value": "Premium_LRS"
+    },
+    "virtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "spatiotemporalBigDataStoreVirtualMachineDataDiskSize": {
+      "value": 64
+    },
+    "environment": {
+      "value": "AzureCloud"
+    },
+    "dataStoreTypes": {
+      "value": "Relational"
+    },
+    "dataStoreTypesForBaseDeploymentServers": {
+      "value": "Relational"
+    },
+    "imageReferences": {
+      "value": {"0":{"Publisher": "esri","Offer": "arcgis-enterprise-107","SKU": "byol-1071","UseManagedDiskImage": false}}
+    },
+    "enableRDPAccess": {
+      "value": false
+    },
+    "useCloudStorage": {
+      "value": false      
+    },
+    "useAzureFiles": {
+      "value": false
+    },
+    "fileShareName": {
+      "value": "fileshare"
+    },
+    "cloudStorageAccountName": {
+      "value": ""
+    },
+    "cloudStorageAccountResourceGroupName": {
+      "value": ""
+    },
+    "cloudStorageAccountKey": {
+      "value": ""
+    },
+    "timeZoneId": {
+      "value": "Pacific Standard Time"
+    },
+    "enableAutomaticUpdates": {
+      "value": false
+    },
+    "joinWindowsDomain": {
+      "value": false
+    },
+    "windowsDomainName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorUserName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorPassword": {
+      "value": ""
+    },
+    "debugMode": {
+      "value": false
+    },
+    "arcgisDeploymentVersion": {
+      "value": "10.7.1"
+    },
+    "omsWorkspaceName": {
+      "value": ""
+    },
+    "omsWorkspaceResourceGroupName": {
+      "value": ""
+    }
+  }
+}
