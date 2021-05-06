@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-   Copyright 2020 Esri
+   Copyright 2021 Esri
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -12,7 +12,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.​
 """
-
 
 import sys, json, argparse
 
@@ -44,15 +43,15 @@ def _main(args):
         print(json.dumps(agTags, indent=4))
     else:
         agTags = json.load(open(args.agtf))    
-        params['parameters']['serverRole']
         if not isBaseDeployment:
-            matches = [val for key, val in agTags.iteritems() if key.startswith('FS@'+params['parameters']['serverRole']+'@'+params['parameters']['serverContext']+','+ params['parameters']['geoeventServerContext']+'@')]
+            geoeventServerContext =   params['parameters']['geoeventServerContext']['value'] if params['parameters']['serverRole']['value'] == "GeoEventServer" else ""
+            matches = [val for key, val in agTags.items() if key.startswith('FS@'+params['parameters']['serverRole']['value']+'@'+params['parameters']['serverContext']['value']+','+ geoeventServerContext +'@')]
             if not matches:
                 tagKey = "[concat('FS@',parameters('serverRole'),'@',parameters('serverContext'),',',parameters('geoeventServerContext'),'@',variables('deploymentId'),'@',parameters('deploymentTimestamp'))]" 
                 agTags[tagKey] = "[concat(resourceGroup().name,',',resourceGroup().location,'@',parameters('deploymentPrefix'),'@',parameters('cloudStorageAccountResourceGroupName'),',',parameters('cloudStorageAccountName'),',',string(parameters('useAzureFiles')),'@',variables('omsWorkspace')[string(not(empty(parameters('omsWorkspaceName'))))],'@',string(parameters('enableAutoShutDown')),',',string(parameters('autoShutDownTime')))]"
 
-            if not [val for key, val in agTags.iteritems() if key.startswith("arcgis-deployment-datastore-types")]:
-                agTags["arcgis-deployment-datastore-types"] = "[parameters('dataStoreTypes')]" if isBaseDeployment else ""
+        if not [val for key, val in agTags.items() if key.startswith("arcgis-deployment-datastore-types")]:
+            agTags["arcgis-deployment-datastore-types"] = "[parameters('dataStoreTypes')]" if isBaseDeployment else ""
         print(json.dumps(agTags, indent=4))
 if __name__ == "__main__":
     sys.exit(_main(_arg_parser()))
