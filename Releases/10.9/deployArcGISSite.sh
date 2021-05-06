@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2020 Esri
+# Copyright 2021 Esri
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 
@@ -107,9 +107,10 @@ then
     appGatewayPropertiesObject=$(python getAppGatewayObject.py --tmpf $templateParametersFileName --agpf $appGatewayPropertiesFileName)
     appGatewayTagsFileName='appGatewayTags.json'
     echo $(az resource show -g $appGatewayResourceGroupName -n $appGatewayName --resource-type "Microsoft.Network/applicationGateways" --include-response-body --query tags) > $appGatewayTagsFileName
-    appGatewayTagsObject=$(python getAppGatewayTagsObject.py --dt existing --tmpf $templateParametersFileName --agtf $appGatewayTagsFileName)
     echo "${templateFileObject/APPGATEWAYPROPERTIESOBJECT/$appGatewayPropertiesObject}" > $templateFileNameTemp
-    echo "${templateFileNameTemp/APPGATEWAYTAGS/$appGatewayTagsObject}" > $templateFileNameTemp
+    appGatewayTagsObject=$(python getAppGatewayTagsObject.py --dt existing --tmpf $templateParametersFileName --agtf $appGatewayTagsFileName)
+    templateFileObject=$(cat "$templateFileNameTemp")
+    echo "${templateFileObject/APPGATEWAYTAGS/$appGatewayTagsObject}" > $templateFileNameTemp
     rm $appGatewayPropertiesFileName
     rm $appGatewayTagsFileName
 else

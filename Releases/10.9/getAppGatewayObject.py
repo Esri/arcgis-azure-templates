@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-   Copyright 2020 Esri
+   Copyright 2021 Esri
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
@@ -150,7 +150,7 @@ def _main(args):
             serverBackendHttpSetting = {
                 "name":"[variables('serverBackendHttpsSettingName')]",
                 "properties":{
-                    "port": (11443 if serverRole == "NotebookServer" else 6443),
+                    "port": (11443 if serverRole == "NotebookServer" else (20443 if serverRole == "MissionServer" else 6443)),
                     "protocol":"Https",
                     "cookieBasedAffinity":"Disabled",
                     "connectionDraining":{
@@ -159,7 +159,7 @@ def _main(args):
                     },
                     "pickHostNameFromBackendAddress":True,
                     "path":"/arcgis/",
-                    "requestTimeout":180,
+                    "requestTimeout": (900 if serverRole == "NotebookServer" else 180),
                     "probe":{
                         "id":"[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/probes/', variables('serverBackendProbeName'))]"
                     },
@@ -224,6 +224,33 @@ def _main(args):
                 }
                 backendHttpSettingsArrayList.append(wsGeoeventServerBackendHttpSetting)
         
+        if serverRole == "MissionServer":
+            if not any(x for x in backendHttpSettingsArrayList if x['name'] == (serverContext + "-" + securityTagOption + "WSMissionServerHttpsSetting")):
+                wsMissionServerBackendHttpSetting = {
+                    "name":"[variables('wsMissionServerBackendHttpsSettingName')]",
+                    "properties":{
+                        "port": 20301,
+                        "protocol":"Https",
+                        "cookieBasedAffinity":"Disabled",
+                        "connectionDraining":{
+                            "enabled":True,
+                            "drainTimeoutInSec":60
+                        },
+                        "pickHostNameFromBackendAddress":True,
+                        "path":"/arcgis/",
+                        "requestTimeout":180,
+                        "probe":{
+                            "id":"[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/probes/', variables('serverBackendProbeName'))]"
+                        },
+                        "trustedRootCertificates":[
+                            {
+                                "id":"[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/trustedRootCertificates/', variables('serverBackendSSLCertName'))]"
+                            }
+                        ]
+                    }
+                }
+                backendHttpSettingsArrayList.append(wsMissionServerBackendHttpSetting)
+
         ag['backendHttpSettingsCollection'] = backendHttpSettingsArrayList
 
         urlPathMapArrayList = ag['urlPathMaps'][0]['properties']['pathRules']
@@ -286,6 +313,28 @@ def _main(args):
                     }
                 }
                 urlPathMapArrayList.append(wsGeoeventPathRule)
+
+        if serverRole == "MissionServer":
+            if not any(x for x in urlPathMapArrayList if x['name'] == (serverContext + "-" + securityTagOption + "WSMissionServerPathRule")):
+                wsMissionPathRule = {
+                    "name":"[variables('wsMissionServerPathRuleName')]",
+                    "properties":{
+                        "paths":[
+                            "[concat('/', parameters('serverContext'), 'wss/*')]"
+                        ],
+                        "backendAddressPool":{
+                            "id":"[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendAddressPools/',variables('serverBackendPoolName'))]"
+                        },
+                        "backendHttpSettings":{
+                            "id":"[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendHttpSettingsCollection/', variables('wsMissionServerBackendHttpsSettingName'))]"
+                        },
+                        "rewriteRuleSet":{
+                            "id":"[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/rewriteRuleSets/',variables('wsMissionServerRewriteRuleSetName'))]"
+                        }
+                    }
+                }
+                urlPathMapArrayList.append(wsMissionPathRule)
+
         ag['urlPathMaps'][0]['properties']['pathRules'] = urlPathMapArrayList
         
         probesArrayList = ag["probes"]
@@ -305,6 +354,8 @@ def _main(args):
                     }
                 }
             }
+            if serverRole == "MissionServer":
+                probe.properties["port"] = 20443
             probesArrayList.append(probe)
 
         if serverRole == "GeoEventServer":
@@ -313,14 +364,14 @@ def _main(args):
                     "name":"[variables('geoeventServerProbeName')]",
                     "properties":{
                         "protocol":"Https",
-                        "path":"/geoevent/admin",
+                        "path":"/geoevent/manager",
                         "interval":30,
                         "timeout":30,
                         "unhealthyThreshold":3,
                         "pickHostNameFromBackendHttpSettings":True,
                         "minServers":0,
                         "match":{
-                            "statusCodes":["200-404"]
+                            "statusCodes":["200-399"]
                         }
                     }
                 }
@@ -352,7 +403,7 @@ def _main(args):
                             "name":"ServerRewriteRule",
                             "conditions":[{
                                 "variable" : "http_resp_Location",
-                                "pattern" : r"(https?):\/\/[^\/]+:11443\/(?:arcgis)(.*)$" if serverRole == "NotebookServer" else r"(https?):\/\/[^\/]+:6443\/(?:arcgis)(.*)$",
+                                "pattern" : r"[concat('(https?):\/\/[^\/]+:11443\/(?:arcgis|',parameters('serverContext'),')(.*)$')]" if serverRole == "NotebookServer" else ("[concat('(https?):\/\/[^\/]+:20443\/(?:arcgis|',parameters('serverContext'),')(.*)$')]" if serverRole == "MissionServer" else r"[concat('(https?):\/\/[^\/]+:6443\/(?:arcgis|',parameters('serverContext'),')(.*)$')]" ),
                                 "ignoreCase" : True,
                                 "negate" : False
                             }],
@@ -399,7 +450,7 @@ def _main(args):
                                 "name":"geoeventServerRewriteRule",
                                 "conditions":[{
                                     "variable" : "http_resp_Location",
-                                    "pattern" : r"(https?):\/\/[^\/]+:6143\/(?:geoevent)(.*)$",
+                                    "pattern" : r"[concat('(https?):\/\/[^\/]+:6143\/(?:geoevent|',parameters('geoeventServerContext'),')(.*)$')]",
                                     "ignoreCase" : True,
                                     "negate" : False
                                 }],
@@ -445,7 +496,7 @@ def _main(args):
                                 "name":"WSGeoeventServerRewriteRule",
                                 "conditions":[{
                                     "variable" : "http_resp_Location",
-                                    "pattern" : r"(https?):\/\/[^\/]+:6143\/(?:arcgis)(.*)$",
+                                    "pattern" : r"[concat('(wss?):\/\/[^\/]+:6143\/(?:arcgis|',parameters('geoeventServerContext'),')(.*)$')]",
                                     "ignoreCase" : True,
                                     "negate" : False
                                 }],
@@ -467,6 +518,53 @@ def _main(args):
                     }
                 }
                 rewriteRuleSetArrayList.append(wsGeoeventRewriteRuleSet)
+        if serverRole == "MissionServer":
+            if not any(x for x in rewriteRuleSetArrayList if x['name'] == (serverContext + "-" + securityTagOption + "WSMissionServerRewriteRuleSet")):
+                wsMissionRewriteRuleSet =  {
+                    "name":"[variables('wsMissionServerRewriteRuleSetName')]",
+                    "properties":{
+                    "rewriteRules":[
+                            {
+                                "ruleSequence":50,
+                                "name":"XForwardedHostRewrite",
+                                "conditions":[],
+                                "actionSet":{
+                                    "requestHeaderConfigurations":[
+                                        {
+                                            "headerName":"X-Forwarded-Host",
+                                            "headerValue":"{http_req_host}"
+                                        }
+                                    ],
+                                    "responseHeaderConfigurations":[]
+                                }
+                            },
+                            {
+                                "ruleSequence":100,
+                                "name":"WSMissionServerRewriteRule",
+                                "conditions":[{
+                                    "variable" : "http_resp_Location",
+                                    "pattern" : r"[concat('(wss?):\/\/[^\/]+:20301\/(?:arcgis|',parameters('serverContext'),')(.*)$')]",
+                                    "ignoreCase" : True,
+                                    "negate" : False
+                                }],
+                                "actionSet":{
+                                    "requestHeaderConfigurations":[],
+                                    "responseHeaderConfigurations":[
+                                        {
+                                            "headerName":"RewriteLocationValue",
+                                            "headerValue":"[concat('{http_resp_Location_1}://{http_req_host}/',parameters('serverContext'),'{http_resp_Location_2}')]"
+                                        },
+                                        {
+                                            "headerName":"Location",
+                                            "headerValue": "[concat('{http_resp_Location_1}://{http_req_host}/',parameters('serverContext'),'wss','{http_resp_Location_2}')]"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+                rewriteRuleSetArrayList.append(wsMissionRewriteRuleSet)
         ag['rewriteRuleSets'] = rewriteRuleSetArrayList
     print(json.dumps(ag, indent=4))
 if __name__ == "__main__":

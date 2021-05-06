@@ -1,0 +1,268 @@
+{
+  "#schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location":{
+      "value": "eastus"
+    },
+    "environment": {
+      "value": "AzureCloud"
+    },
+    "deploymentPrefix": {
+      "value": "gm"
+    },
+    "usesPrivateIP":{
+      "value": false
+    },
+    "deployPublicIPWhenUsingPrivateIP":{
+      "value": true
+    },
+    "usesExistingPublicIP":{
+      "value": false
+    },
+    "existingPublicIPResourceGroupName":{
+      "value": "[If usesExistingPublicIP is false, not required. Else Resource Group name of an existing public ip]"
+    },
+    "existingPublicIPName":{
+      "value": "[If usesExistingPublicIP is false, not required. Else name of an existing public ip]"
+    },
+    "dnsPrefixForPublicIpAddress": {
+      "value": "gmm"
+    },
+    "externalDnsHostName": {
+      "value": "[TODO - Example (If using Self Signed Certificate) - gmm.eastus.cloudapp.azure.com ]"
+    },
+    "sslCertificateFileName":{
+      "value": "[TODO - wildcard.eastus.cloudapp.azure.com.pfx]"
+    },
+    "publicKeySSLCertificateFileName":{
+      "value": "[TODO - public key associated with certificate specified in 'sslCertificateFileName' parameter ]"
+    },
+    "sslCertificateData": {
+      "value": "[Auto-Generated from the SSL Certificate specified in 'sslCertificateFileName' param]"
+    },
+    "sslCertificatePassword": {
+      "value":"[TODO - *.eastus.cloudapp.azure.com if using self signed certificate, replace 'eastus' value of location]"
+    },
+    "selfSignedSSLCertificatePassword": {
+      "value":"[TODO - externalDNSName if using self signed certificate]"
+    },
+    "virtualNetworkResourceGroupName": {
+      "value": "[TODO - Resource Group in which the created Virtual Networks is present]"
+    },
+    "existingVirtualNetworkName": {
+      "value": "[TODO - Existing Virtual Network Name]"
+    },
+    "subnetName": {
+      "value": "[TODO - Existing Virtual Network Subnet]"
+    },
+    "appGatewaySubnetName": {
+      "value": "[TODO - Existing Virtual Network Empty Application Gateway Subnet]"
+    },
+    "appGatewayName": {
+      "value": "bmAppGateway"
+    },
+    "appGatewayResourceGroupName": {
+      "value": "[TODO - Resource Group specified in deployArcGIS.sh. Base Deployment will be created in this Resource Group.]"
+    },
+    "imageReferences": {
+      "value": {
+        "0": {
+          "Publisher": "esri",
+          "Offer": "arcgis-enterprise",
+          "SKU": "byol-109",
+          "UseManagedDiskImage": false
+        }
+      }
+    },
+    "adminUsername": {
+      "value": "[TODO - Machine Administrator Account]"
+    },
+    "adminPassword": {
+      "value": "[TODO]"
+    },
+    "fileShareVirtualMachineName": {
+      "value": "gmFileShare"
+    },
+    "fileShareVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "fileShareVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "fileShareVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "virtualMachineNames": {
+      "value": "ssServer-0"
+    },
+    "virtualMachineImageSpecs": {
+      "value": "0"
+    },
+    "virtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "virtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "virtualMachineOSDiskSize": {
+      "value": 128
+    },
+    "timeZoneId": {
+      "value": "Pacific Standard Time"
+    },
+    "enableAutomaticUpdates": {
+      "value": false
+    },
+    "joinWindowsDomain": {
+      "value": false
+    },
+    "windowsDomainName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorUserName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorPassword": {
+      "value": ""
+    },
+    "omsWorkspaceName": {
+      "value": ""
+    },
+    "omsWorkspaceResourceGroupName": {
+      "value": ""
+    },
+    "serverContext":{
+      "value": "server"
+    },
+    "geoeventServerContext":{
+      "value": ""
+    },
+    "arcgisServiceAccountUserName": {
+      "value": "arcgis"
+    },
+    "arcgisServiceAccountIsDomainAccount": {
+      "value": false
+    },
+    "arcgisServiceAccountPassword": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountPassword": {
+      "value": "[TODO]"
+    },
+    "serverLicenseFileName": {
+      "value": "[TODO - server.ecp]"
+    },
+    "useCloudStorage": {
+      "value": false      
+    },
+    "useAzureFiles": {
+      "value": false
+    },
+    "fileShareName": {
+      "value": "fileshare"
+    },
+    "cloudStorageAccountName": {
+      "value": ""
+    },
+    "cloudStorageAccountResourceGroupName": {
+      "value": ""
+    },
+    "cloudStorageAccountKey": {
+      "value": ""
+    },
+    "cloudStores":{
+      "value":{}
+    },
+    "enableServerLogHarvesterPlugin":{
+      "value": false
+    },
+    "federateSite":{
+      "value": false
+    },
+    "serverRole":{
+      "value": "GeneralPurposeServer"
+    },
+    "serverFunctions":{
+      "value": ""
+    },
+    "federatedSiteDeploymentId":{
+      "value": ""
+    },
+    "federatedSitePortalContext":{
+      "value": ""
+    },
+    "portalSiteAdministratorAccountUserName":{
+      "value": ""
+    },
+    "portalSiteAdministratorAccountPassword":{
+      "value": ""
+    },
+    "gisServerMachineNamesOnHostingServer":{
+      "value": ""
+    },
+    "portalMachineNamesOnHostingServer":{
+      "value": ""
+    },
+    "databaseOption":{
+      "value": "None"
+    },
+    "databaseServerAdministratorAccountUserName":{
+      "value": ""
+    },
+    "databaseServerAdministratorAccountPassword":{
+      "value": ""
+    },
+    "databaseUserAccountUserName":{
+      "value": ""
+    },
+    "databaseUserAccountPassword":{
+      "value": ""
+    },
+    "databaseServerHostName":{
+      "value": ""
+    },
+    "databaseName":{
+      "value": ""
+    },
+    "isManaged":{
+      "value": false
+    },
+    "enableGeodatabase":{
+      "value": false
+    },
+    "sqlServerVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "sqlServerImageSku": {
+      "value": "Enterprise"
+    },
+    "sqlServerImageOffer": {
+      "value": "SQL2016SP1-WS2016"
+    },
+    "sqlServerVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "sqlServerVirtualMachineOSDiskSize": {
+      "value": 128
+    },
+    "debugMode": {
+      "value": false
+    },
+    "enableRDPAccess":{
+      "value": true
+    },
+    "enableAutoShutDown":{
+      "value": true
+    },
+    "autoShutDownTime":{
+      "value": "0000"
+    },
+    "arcgisDeploymentVersion": {
+      "value": "10.9"
+    }    
+  }
+}
