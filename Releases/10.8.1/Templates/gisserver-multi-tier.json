@@ -1582,7 +1582,7 @@
           "resources": [
             {
               "type": "Microsoft.Network/applicationGateways",
-              "apiVersion": "2019-04-01",
+              "apiVersion": "2021-02-01",
               "name": "[parameters('appGatewayName')]",
               "location": "[parameters('location')]",
               "tags": APPGATEWAYTAGS,
