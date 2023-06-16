@@ -1,0 +1,274 @@
+{
+  "#schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "eastus"
+    },
+    "environment": {
+      "value": "AzureCloud"
+    },
+    "deploymentPrefix": {
+      "value": "bm"
+    },
+    "usesPrivateIP": {
+      "value": false
+    },
+    "deployPublicIPWhenUsingPrivateIP": {
+      "value": true
+    },
+    "usesExistingPublicIP": {
+      "value": false
+    },
+    "existingPublicIPResourceGroupName": {
+      "value": "[If usesExistingPublicIP is false, not required. Else Resource Group name of an existing public ip]"
+    },
+    "existingPublicIPName": {
+      "value": "[If usesExistingPublicIP is false, not required. Else name of an existing public ip]"
+    },
+    "dnsPrefixForPublicIpAddress": {
+      "value": "bmm"
+    },
+    "externalDnsHostName": {
+      "value": "[TODO - Example (If using Self Signed Certificate) - bmm.eastus.cloudapp.azure.com ]"
+    },
+    "secondaryDnsHostName": {
+      "value": "[TODO - Example (If using Self Signed Certificate) - bmm2.eastus.cloudapp.azure.com - the certificate should contain SAN referencing both externalDnsHostName and secondaryDnsHostName]"
+    },
+    "sslCertificateFileName": {
+      "value": "[TODO - wildcard.eastus.cloudapp.azure.com.pfx]"
+    },
+    "publicKeySSLCertificateFileName": {
+      "value": "[TODO - File name of the public key (.cer) extracted from the certificate referred in 'sslCertificateFileName' parameter. Certificate can be extracted using Windows certifacte manager or openssl ]"
+    },
+    "sslCertificateData": {
+      "value": "[Auto-Generated from the SSL Certificate specified in 'sslCertificateFileName' param]"
+    },
+    "sslCertificatePassword": {
+      "value": "[TODO - *.eastus.cloudapp.azure.com if using self signed certificate, replace 'eastus' value of location]"
+    },
+    "selfSignedSSLCertificatePassword": {
+      "value": "[TODO - externalDNSName if using self signed certificate]"
+    },
+    "virtualNetworkResourceGroupName": {
+      "value": "[TODO - Resource Group in which the created Virtual Networks is present]"
+    },
+    "existingVirtualNetworkName": {
+      "value": "[TODO - Existing Virtual Network Name]"
+    },
+    "subnetName": {
+      "value": "[TODO - Existing Virtual Network Subnet]"
+    },
+    "appGatewaySubnetName": {
+      "value": "[TODO - Existing Virtual Network Empty Application Gateway Subnet]"
+    },
+    "appGatewayName": {
+      "value": "bmAppGateway"
+    },
+    "appGatewayResourceGroupName": {
+      "value": "[TODO - Resource Group specified in deployArcGIS.sh. Base Deployment will be created in this Resource Group.]"
+    },
+    "imageReferences": {
+      "value": {
+        "0": {
+          "Publisher": "esri",
+          "Offer": "arcgis-enterprise",
+          "SKU": "byol-111",
+          "AzureVMImageType": 0
+        }
+      }
+    },
+    "adminUsername": {
+      "value": "[TODO - Machine Administrator Account]"
+    },
+    "adminPassword": {
+      "value": "[TODO]"
+    },
+    "fileShareVirtualMachineName": {
+      "value": "bmFileShare"
+    },
+    "fileShareVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "fileShareVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "fileShareVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "serverVirtualMachineNames": {
+      "value": "bmServer-0,bmServer-1"
+    },
+    "serverVirtualMachineImageSpecs": {
+      "value": "0,0"
+    },
+    "serverVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "serverVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "serverVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "portalVirtualMachineNames": {
+      "value": "bmPortal-Pri,bmPortal-Sec"
+    },
+    "portalVirtualMachineImageSpecs": {
+      "value": "0,0"
+    },
+    "portalVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "portalVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "portalVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "dataStoreVirtualMachineNames": {
+      "value": "bmDataStr-Pri,bmDataStr-Sby"
+    },
+    "dataStoreVirtualMachineImageSpecs": {
+      "value": "0,0"
+    },
+    "dataStoreVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "dataStoreVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "dataStoreVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "tileCacheDataStoreVirtualMachineNames": {
+      "value": "bmTileCache-0,bmTileCache-1"
+    },
+    "tileCacheDataStoreVirtualMachineImageSpecs": {
+      "value": "0,0"
+    },
+    "tileCacheDataStoreVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "tileCacheDataStoreVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "tileCacheDataStoreVirtualMachineOsDiskSize": {
+      "value": 128
+    },
+    "spatiotemporalBigdataStoreVirtualMachineNames": {
+      "value": "bmSpatio-0,bmSpatio-1,bmSpatio-2"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineImageSpecs": {
+      "value": "0,0,0"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
+      "value": 128
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "timeZoneId": {
+      "value": "Pacific Standard Time"
+    },
+    "enableAutomaticUpdates": {
+      "value": false
+    },
+    "joinWindowsDomain": {
+      "value": false
+    },
+    "windowsDomainName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorUserName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorPassword": {
+      "value": ""
+    },
+    "omsWorkspaceName": {
+      "value": ""
+    },
+    "omsWorkspaceResourceGroupName": {
+      "value": ""
+    },
+    "serverContext": {
+      "value": "server"
+    },
+    "portalContext": {
+      "value": "portal"
+    },
+    "arcgisServiceAccountUserName": {
+      "value": "arcgis"
+    },
+    "arcgisServiceAccountIsDomainAccount": {
+      "value": false
+    },
+    "arcgisServiceAccountPassword": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountPassword": {
+      "value": "[TODO]"
+    },
+    "serverLicenseFileName": {
+      "value": "[TODO - server.ecp]"
+    },
+    "portalLicenseFileName": {
+      "value": "[TODO - portal.json]"
+    },
+    "portalLicenseUserTypeId": {
+      "value": "[TODO - creatorUT]"
+    },
+    "dataStoreTypes": {
+      "value": "Relational,TileCache,SpatioTemporal"
+    },
+    "isMultiMachineTileCacheDataStore": {
+      "value": true
+    },
+    "isTileCacheDataStoreClustered": {
+      "value": false
+    },
+    "useCloudStorage": {
+      "value": false
+    },
+    "useAzureFiles": {
+      "value": false
+    },
+    "fileShareName": {
+      "value": "fileshare"
+    },
+    "cloudStorageAccountName": {
+      "value": ""
+    },
+    "cloudStorageAccountResourceGroupName": {
+      "value": ""
+    },
+    "cloudStorageAccountKey": {
+      "value": ""
+    },
+    "enableServerLogHarvesterPlugin": {
+      "value": false
+    },
+    "debugMode": {
+      "value": false
+    },
+    "enableRDPAccess": {
+      "value": true
+    },
+    "enableAutoShutDown": {
+      "value": true
+    },
+    "autoShutDownTime": {
+      "value": "0000"
+    },
+    "arcgisDeploymentVersion": {
+      "value": "11.1"
+    }
+  }
+}
