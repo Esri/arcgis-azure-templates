@@ -1,0 +1,494 @@
+﻿{
+  "#schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "eastus"
+    },
+    "isMultiTier": {
+      "value": "true"
+    },
+    "environment": {
+      "value": "AzureCloud"
+    },
+    "deploymentPrefix": {
+      "value": "bm"
+    },
+    "usesPrivateIP": {
+      "value": false
+    },
+    "deployPublicIPWhenUsingPrivateIP": {
+      "value": true
+    },
+    "usesExistingPublicIP": {
+      "value": false
+    },
+    "existingPublicIPResourceGroupName": {
+      "value": "[If usesExistingPublicIP is false, not required. Else Resource Group name of an existing public ip]"
+    },
+    "existingPublicIPName": {
+      "value": "[If usesExistingPublicIP is false, not required. Else name of an existing public ip]"
+    },
+    "dnsPrefixForPublicIpAddress": {
+      "value": "bmm"
+    },
+    "externalDnsHostName": {
+      "value": "[TODO - Example (If using Self Signed Certificate) - bmm.eastus.cloudapp.azure.com ]"
+    },
+    "secondaryDnsHostName": {
+      "value": "[TODO - Example (If using Self Signed Certificate) - bmm2.eastus.cloudapp.azure.com - the certificate should contain SAN referencing both externalDnsHostName and secondaryDnsHostName]"
+    },
+    "sslCertificateFileName": {
+      "value": "[TODO - wildcard.eastus.cloudapp.azure.com.pfx]"
+    },
+    "publicKeySSLCertificateFileName": {
+      "value": "[TODO - File name of the public key (.cer) extracted from the certificate referred in 'sslCertificateFileName' parameter. Certificate can be extracted using Windows certifacte manager or openssl ]"
+    },
+    "sslCertificateData": {
+      "value": "[Auto-Generated from the SSL Certificate specified in 'sslCertificateFileName' param]"
+    },
+    "sslCertificatePassword": {
+      "value": "[TODO - *.eastus.cloudapp.azure.com if using self signed certificate, replace 'eastus' value of location]"
+    },
+    "selfSignedSSLCertificatePassword": {
+      "value": "[TODO - externalDNSName if using self signed certificate]"
+    },
+    "virtualNetworkResourceGroupName": {
+      "value": "[TODO - Resource Group in which the created Virtual Networks is present]"
+    },
+    "existingVirtualNetworkName": {
+      "value": "[TODO - Existing Virtual Network Name]"
+    },
+    "subnetName": {
+      "value": "[TODO - Existing Virtual Network Subnet]"
+    },
+    "appGatewaySubnetName": {
+      "value": "[TODO - Existing Virtual Network Empty Application Gateway Subnet]"
+    },
+    "appGatewayName": {
+      "value": "bmAppGateway"
+    },
+    "appGatewayResourceGroupName": {
+      "value": "[TODO - Resource Group specified in deployArcGIS.sh. Base Deployment will be created in this Resource Group.]"
+    },
+    "adminUsername": {
+      "value": "[TODO - Machine Administrator Account]"
+    },
+    "adminPassword": {
+      "value": "[TODO]"
+    },
+    "virtualMachines": {
+      "value": [
+        {
+          "VMName": "bmFileShare",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "MicrosoftWindowsServer",
+            "Offer": "WindowsServer",
+            "SKU": "2022-datacenter-smalldisk-g2",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "FileShare",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmServer-0",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "Server",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmServer-1",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "Server",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmPortal-Pri",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "Portal",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmPortal-Sec",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "Portal",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmDataStr-Pri",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "DataStore",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmDataStr-Sby",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "DataStore",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmSpatioT-0",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "SpatiotemporalDataStore",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmSpatioT-1",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "SpatiotemporalDataStore",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmSpatioT-2",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "SpatiotemporalDataStore",
+          "DataDisks": []
+        },
+        {
+          "VMName": "bmGraphStr-Pri",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "GraphDataStore",
+          "DataDisks": [
+            {
+              "name": "bmGraphStr-Pri-DataDisk",
+              "diskSizeGB": 32,
+              "createOption": "Empty",
+              "lun": 0,
+              "managedDisk": {
+                "storageAccountType": "Premium_LRS"
+              }
+            }
+          ]
+        },
+        {
+          "VMName": "bmJumpbox",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "MicrosoftWindowsServer",
+            "Offer": "WindowsServer",
+            "SKU": "2022-datacenter-smalldisk-g2",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D2s_v5",
+          "OSDiskType": "Standard_LRS",
+          "OSDiskSize": 64,
+          "VMRoles": "RDPJumpBox",
+          "DataDisks": []
+        }
+      ]
+    },
+    "virtualMachineNames": {
+      "value": "bmFileShare,bmServer-0,bmServer-1,bmPortal-Pri,bmPortal-Sec,bmDataStr-Pri,bmDataStr-Sby,bmSpatioT-0,bmSpatioT-1,bmSpatioT-2,bmGraphStr-Pri"
+    },
+    "serverVirtualMachineNames": {
+      "value": "bmServer-0,bmServer-1"
+    },
+    "portalVirtualMachineNames": {
+      "value": "bmPortal-Pri,bmPortal-Sec"
+    },
+    "dataStoreVirtualMachineNames": {
+      "value": "bmDataStr-Pri,bmDataStr-Sby"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineNames": {
+      "value": "bmSpatioT-0,bmSpatioT-1,bmSpatioT-2"
+    },
+    "fileShareVirtualMachineName": {
+      "value": "bmFileShare"
+    },
+    "graphDataStoreVirtualMachineNames": {
+      "value": "guGraphStr-Pri"
+    },
+    "timeZoneId": {
+      "value": "Pacific Standard Time"
+    },
+    "enableAutomaticUpdates": {
+      "value": false
+    },
+    "joinWindowsDomain": {
+      "value": false
+    },
+    "windowsDomainName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorUserName": {
+      "value": ""
+    },
+    "windowsDomainAdministratorPassword": {
+      "value": ""
+    },
+    "logAnalyticsWorkspaceName": {
+      "value": ""
+    },
+    "logAnalyticsWorkspaceResourceGroupName": {
+      "value": ""
+    },
+    "azureMonitoringAgentUserAssignedIdentityId": {
+      "value": ""
+    },
+    "azureMonitoringAgentUserAssignedIdentityClientId": {
+      "value": ""
+    },
+    "serverContext": {
+      "value": "server"
+    },
+    "portalContext": {
+      "value": "portal"
+    },
+    "arcgisServiceAccountUserName": {
+      "value": "arcgis"
+    },
+    "arcgisServiceAccountIsDomainAccount": {
+      "value": false
+    },
+    "arcgisServiceAccountPassword": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "value": "[TODO]"
+    },
+    "primarySiteAdministratorAccountPassword": {
+      "value": "[TODO]"
+    },
+    "serverLicenseFileName": {
+      "value": "[TODO - server.ecp]"
+    },
+    "portalLicenseFileName": {
+      "value": "[TODO - portal.json]"
+    },
+    "portalLicenseUserTypeId": {
+      "value": "[TODO - creatorUT]"
+    },
+    "dataStoreTypes": {
+      "value": "Relational,CloudProvidedObjectStore,SpatioTemporal,GraphStore"
+    },
+    "isMultiMachineTileCacheDataStore": {
+      "value": true
+    },
+    "isTileCacheDataStoreClustered": {
+      "value": false
+    },
+    "useCloudStorage": {
+      "value": false
+    },
+    "useAzureFiles": {
+      "value": false
+    },
+    "usesFileShareVirtualMachine": {
+      "value": true
+    },
+    "useExistingFileShare": {
+      "value": false
+    },
+    "fileShareName": {
+      "value": "fileshare"
+    },
+    "cloudStorageAccountName": {
+      "value": ""
+    },
+    "cloudStorageAccountResourceGroupName": {
+      "value": ""
+    },
+    "cloudStorageAccountKey": {
+      "value": ""
+    },
+    "cloudStorageSASToken": {
+      "value": ""
+    },
+    "cloudStorageAuthenticationType": {
+      "value": ""
+    },
+    "cloudStorageUserAssignedIdentityClientId": {
+      "value": ""
+    },
+    "cloudStorageServicePrincipalTenantId": {
+      "value": ""
+    },
+    "cloudStorageServicePrincipalClientId": {
+      "value": ""
+    },
+    "cloudStorageServicePrincipalClientSecret": {
+      "value": ""
+    },
+    "cloudStorageServicePrincipalAuthorityHost": {
+      "value": ""
+    },
+    "enableServerLogHarvesterPlugin": {
+      "value": false
+    },
+    "debugMode": {
+      "value": false
+    },
+    "enableRDPAccess": {
+      "value": true
+    },
+    "enableAutoShutDown": {
+      "value": true
+    },
+    "autoShutDownTime": {
+      "value": "0000"
+    },
+    "userAssignedIdentities": {
+      "value": {
+        "<ResourceId of Identity 1>": {},
+        "<ResourceId of Identity 2>": {},
+      }
+    },
+    "cloudProvidedObjectStore": {
+      "value": {
+        "Name": "<dnsPrefixForPublicIpAddress>_Cloud_Object_Store",
+        "AccountName": "<Storage Account Name>",
+        "AccountEndpoint": "core.windows.net",
+        "ContainerName": "<Storage Container Name>",
+        "StoreType": "ObjectStore",
+        "AzureStorageAuthenticationType": "<AccessKey| UserAssignedIdentity (userAssignedIdentities should be specified)>",
+        "AccessKey": "<Required if AzureStorageAuthenticationType is AccessKey>",
+        "UserAssignedIdentityClientId": "<Required if AzureStorageAuthenticationType is UserAssignedIdentity>"
+      }
+    },
+    "cloudStores": {
+      "value": {}
+    },
+    "databaseOption": {
+      "value": "None"
+    },
+    "databaseServerAdministratorAccountUserName": {
+      "value": ""
+    },
+    "databaseServerAdministratorAccountPassword": {
+      "value": ""
+    },
+    "databaseUserAccountUserName": {
+      "value": ""
+    },
+    "databaseUserAccountPassword": {
+      "value": ""
+    },
+    "databaseServerHostName": {
+      "value": ""
+    },
+    "databaseName": {
+      "value": ""
+    },
+    "enableGeodatabase": {
+      "value": false
+    },
+    "enableTrustedLaunch": {
+      "value": "[Flag to enable Trusted Launch]"
+    },
+    "secureBootEnabled": {
+      "value": "[Additional flag to enable Secure Boot if Trusted Launch is enabled]"
+    },
+    "vTpmEnabled": {
+      "value": "[Additional flag to enable vTPM if Trusted Launch is enabled]"
+    },
+    "removeAndUninstallExtraArtifacts": {
+      "value": "[Flag to run utility at the end of deployment to remove and uninstall extra artifacts and setups not required for the deployment]"
+    },
+    "outboundConnectivityMethod": {
+      "value": "[Explicity Outbound Conectivity for Azure Virtual Machines - LoadBalancer | NatGateway]"
+    },
+    "natGatewayResourceGroup": {
+      "value": "[If outboundConnectivityMethod is NatGateway, Resource Group in which the NAT Gateway is present]"
+    },
+    "natGatewayName": {
+      "value": "[If outboundConnectivityMethod is NatGateway, Name of the NAT Gateway]"
+    },
+    "arcgisDeploymentVersion": {
+      "value": "11.4"
+    }
+  }
+}

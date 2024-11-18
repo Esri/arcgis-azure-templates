@@ -1,0 +1,447 @@
+{
+  "sku": {
+    "name": "Standard_v2",
+    "tier": "Standard_v2",
+    "capacity": 2
+  },
+  "gatewayIPConfigurations": [
+    {
+      "name": "appGatewayIpConfig",
+      "properties": {
+        "subnet": {
+          "id": "[variables('appGatewaySubnetRef')]"
+        }
+      }
+    }
+  ],
+  "frontendIPConfigurations": "[if(parameters('usesPrivateIP'),variables('privateIPFrontEndConfiguration')[string(parameters('deployPublicIPWhenUsingPrivateIP'))],variables('publicIPFrontEndConfiguration'))]",
+  "sslCertificates": [
+    {
+      "name": "frontendCert",
+      "properties": {
+        "data": "[parameters('sslCertificateData')]",
+        "password": "[parameters('sslCertificatePassword')]"
+      }
+    }
+  ],
+  "trustedRootCertificates": [],
+  "frontendPorts": [
+    {
+      "name": "[variables('frontendport443Name')]",
+      "properties": {
+        "port": 443
+      }
+    },
+    {
+      "name": "[variables('frontendport80Name')]",
+      "properties": {
+        "port": 80
+      }
+    }
+  ],
+  "backendAddressPools": [
+    {
+      "name": "[variables('serverBackendPoolName')]",
+      "properties": {
+        "copy": [
+          {
+            "name": "backendAddresses",
+            "count": "[variables('numberOfVirtualMachines')]",
+            "input": {
+              "fqdn": "[concat( variables('virtualMachineNames')[copyIndex('backendAddresses')], '.', if(equals(string(parameters('joinWindowsDomain')), 'True'),parameters('windowsDomainName'), reference(concat(variables('virtualMachineNames')[copyIndex('backendAddresses')],'-',variables('nicName'))).dnsSettings.internalDomainNameSuffix))]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "backendHttpSettingsCollection": [
+    {
+      "name": "[variables('serverBackendHttpsSettingName')]",
+      "properties": {
+        "port": 6443,
+        "protocol": "Https",
+        "cookieBasedAffinity": "Disabled",
+        "connectionDraining": {
+          "enabled": true,
+          "drainTimeoutInSec": 60
+        },
+        "pickHostNameFromBackendAddress": true,
+        "path": "/arcgis/",
+        "requestTimeout": 180,
+        "probe": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/probes/', variables('serverBackendProbeName'))]"
+        },
+        "trustedRootCertificates": [
+          {
+            "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/trustedRootCertificates/', variables('serverBackendSSLCertName'))]"
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('geoeventServerBackendHttpsSettingName')]",
+      "properties": {
+        "port": 6143,
+        "protocol": "Https",
+        "cookieBasedAffinity": "Disabled",
+        "connectionDraining": {
+          "enabled": true,
+          "drainTimeoutInSec": 60
+        },
+        "pickHostNameFromBackendAddress": true,
+        "path": "/geoevent/",
+        "requestTimeout": 180,
+        "probe": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/probes/', variables('geoeventServerProbeName'))]"
+        },
+        "trustedRootCertificates": [
+          {
+            "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/trustedRootCertificates/', variables('serverBackendSSLCertName'))]"
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('wsGeoeventServerBackendHttpsSettingName')]",
+      "properties": {
+        "port": 6143,
+        "protocol": "Https",
+        "cookieBasedAffinity": "Disabled",
+        "connectionDraining": {
+          "enabled": true,
+          "drainTimeoutInSec": 60
+        },
+        "pickHostNameFromBackendAddress": true,
+        "path": "/arcgis/",
+        "requestTimeout": 180,
+        "probe": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/probes/', variables('geoeventServerProbeName'))]"
+        },
+        "trustedRootCertificates": [
+          {
+            "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/trustedRootCertificates/', variables('serverBackendSSLCertName'))]"
+          }
+        ]
+      }
+    }
+  ],
+  "probes": [
+    {
+      "name": "[variables('serverBackendProbeName')]",
+      "properties": {
+        "protocol": "Https",
+        "path": "/arcgis/rest/info/healthcheck",
+        "interval": 30,
+        "timeout": 30,
+        "unhealthyThreshold": 3,
+        "pickHostNameFromBackendHttpSettings": true,
+        "minServers": 0,
+        "match": {
+          "statusCodes": [ "200" ]
+        }
+      }
+    },
+    {
+      "name": "[variables('geoeventServerProbeName')]",
+      "properties": {
+        "protocol": "Https",
+        "path": "/geoevent/manager",
+        "interval": 30,
+        "timeout": 30,
+        "unhealthyThreshold": 3,
+        "pickHostNameFromBackendHttpSettings": true,
+        "minServers": 0,
+        "match": {
+          "statusCodes": [ "200-399" ]
+        }
+      }
+    }
+  ],
+  "httpListeners": [
+    {
+      "name": "[variables('httpDeploymentListnerName')]",
+      "properties": {
+        "frontendIPConfiguration": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/frontendIPConfigurations/',variables('frontendIPConfigurationsName'))]"
+        },
+        "frontendPort": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/frontendPorts/',variables('frontendport80Name'))]"
+        },
+        "protocol": "Http",
+        "hostNames": "[if(not(empty(parameters('secondaryDnsHostName'))),createArray(parameters('externalDnsHostName'),parameters('secondaryDnsHostName')),createArray(parameters('externalDnsHostName')))]",
+        "requireServerNameIndication": false
+      }
+    },
+    {
+      "name": "[variables('httpsDeploymentListnerName')]",
+      "properties": {
+        "frontendIPConfiguration": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/frontendIPConfigurations/',variables('frontendIPConfigurationsName'))]"
+        },
+        "frontendPort": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/frontendPorts/',variables('frontendport443Name'))]"
+        },
+        "protocol": "Https",
+        "sslCertificate": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/sslCertificates/frontendCert')]"
+        },
+        "hostNames": "[if(not(empty(parameters('secondaryDnsHostName'))),createArray(parameters('externalDnsHostName'),parameters('secondaryDnsHostName')),createArray(parameters('externalDnsHostName')))]",
+        "requireServerNameIndication": false
+      }
+    }
+  ],
+  "urlPathMaps": [
+    {
+      "name": "[variables('urlPathMapsName')]",
+      "properties": {
+        "defaultBackendAddressPool": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendAddressPools/',variables('serverBackendPoolName'))]"
+        },
+        "defaultBackendHttpSettings": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendHttpSettingsCollection/',variables('serverBackendHttpsSettingName'))]"
+        },
+        "pathRules": [
+          {
+            "name": "[variables('serverPathRuleName')]",
+            "properties": {
+              "paths": [
+                "[concat('/', parameters('serverContext'), '/*')]",
+                "[concat('/', parameters('serverContext'))]"
+              ],
+              "backendAddressPool": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendAddressPools/',variables('serverBackendPoolName'))]"
+              },
+              "backendHttpSettings": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendHttpSettingsCollection/', variables('serverBackendHttpsSettingName'))]"
+              },
+              "rewriteRuleSet": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/rewriteRuleSets/',variables('serverRewriteRuleSetName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('geoeventServerPathRuleName')]",
+            "properties": {
+              "paths": [
+                "[concat('/', parameters('geoeventServerContext'), '/*')]"
+              ],
+              "backendAddressPool": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendAddressPools/',variables('serverBackendPoolName'))]"
+              },
+              "backendHttpSettings": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendHttpSettingsCollection/', variables('geoeventServerBackendHttpsSettingName'))]"
+              },
+              "rewriteRuleSet": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/rewriteRuleSets/',variables('geoeventServerRewriteRuleSetName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('wsGeoeventServerPathRuleName')]",
+            "properties": {
+              "paths": [
+                "[concat('/', parameters('geoeventServerContext'), 'wss/*')]"
+              ],
+              "backendAddressPool": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendAddressPools/',variables('serverBackendPoolName'))]"
+              },
+              "backendHttpSettings": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/backendHttpSettingsCollection/', variables('wsGeoeventServerBackendHttpsSettingName'))]"
+              },
+              "rewriteRuleSet": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/rewriteRuleSets/',variables('wsGeoeventServerRewriteRuleSetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "redirectConfigurations": [
+    {
+      "name": "[variables('redirectConfigurationName')]",
+      "properties": {
+        "redirectType": "Permanent",
+        "targetListener": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/httpListeners/',variables('httpsDeploymentListnerName'))]"
+        },
+        "includePath": true,
+        "includeQueryString": true,
+        "requestRoutingRules": [
+          {
+            "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/requestRoutingRules/',variables('httpToHttpsRequestRoutingRule'))]"
+          }
+        ]
+      }
+    }
+  ],
+  "requestRoutingRules": [
+    {
+      "Name": "[variables('requestRoutingRule')]",
+      "properties": {
+        "RuleType": "PathBasedRouting",
+        "priority": 10,
+        "httpListener": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/httpListeners/',variables('httpsDeploymentListnerName'))]"
+        },
+        "urlPathMap": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/urlPathMaps/',variables('urlPathMapsName'))]"
+        }
+      }
+    },
+    {
+      "name": "[variables('httpToHttpsRequestRoutingRule')]",
+      "properties": {
+        "ruleType": "Basic",
+        "priority": 20,
+        "httpListener": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/httpListeners/',variables('httpDeploymentListnerName'))]"
+        },
+        "redirectConfiguration": {
+          "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'),'Microsoft.Network/applicationGateways', parameters('appGatewayName')), '/redirectConfigurations/',variables('redirectConfigurationName'))]"
+        }
+      }
+    }
+  ],
+  "rewriteRuleSets": [
+    {
+      "name": "[variables('serverRewriteRuleSetName')]",
+      "properties": {
+        "rewriteRules": [
+          {
+            "ruleSequence": 50,
+            "conditions": [],
+            "name": "XForwardedHostRewrite",
+            "actionSet": {
+              "requestHeaderConfigurations": [
+                {
+                  "headerName": "X-Forwarded-Host",
+                  "headerValue": "{http_req_host}"
+                }
+              ],
+              "responseHeaderConfigurations": []
+            }
+          },
+          {
+            "ruleSequence": 100,
+            "conditions": [
+              {
+                "variable": "http_resp_Location",
+                "pattern": "[concat('(https?):\\/\\/[^\\/]+:6443\\/(?:arcgis|',parameters('serverContext'),')(.*)$')]",
+                "ignoreCase": true,
+                "negate": false
+              }
+            ],
+            "name": "ServerRewrite",
+            "actionSet": {
+              "requestHeaderConfigurations": [],
+              "responseHeaderConfigurations": [
+                {
+                  "headerName": "RewriteLocationValue",
+                  "headerValue": "[concat('{http_resp_Location_1}://{http_req_host}/',parameters('serverContext'),'{http_resp_Location_2}')]"
+                },
+                {
+                  "headerName": "Location",
+                  "headerValue": "[concat('{http_resp_Location_1}://{http_req_host}/',parameters('serverContext'),'{http_resp_Location_2}')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('geoeventServerRewriteRuleSetName')]",
+      "properties": {
+        "rewriteRules": [
+          {
+            "ruleSequence": 50,
+            "name": "XForwardedHostRewrite",
+            "conditions": [],
+            "actionSet": {
+              "requestHeaderConfigurations": [
+                {
+                  "headerName": "X-Forwarded-Host",
+                  "headerValue": "{http_req_host}"
+                }
+              ],
+              "responseHeaderConfigurations": []
+            }
+          },
+          {
+            "ruleSequence": 100,
+            "name": "geoeventServerRewriteRule",
+            "conditions": [
+              {
+                "variable": "http_resp_Location",
+                "pattern": "[concat('(https?):\/\/[^\/]+:6143\/(?:geoevent|',parameters('geoeventServerContext'),')(.*)$')]",
+                "ignoreCase": true,
+                "negate": false
+              }
+            ],
+            "actionSet": {
+              "requestHeaderConfigurations": [],
+              "responseHeaderConfigurations": [
+                {
+                  "headerName": "RewriteLocationValue",
+                  "headerValue": "[concat('{http_resp_Location_1}://{http_req_host}/',parameters('geoeventServerContext'),'{http_resp_Location_2}')]"
+                },
+                {
+                  "headerName": "Location",
+                  "headerValue": "[concat('{http_resp_Location_1}://{http_req_host}/',parameters('geoeventServerContext'),'{http_resp_Location_2}')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('wsGeoeventServerRewriteRuleSetName')]",
+      "properties": {
+        "rewriteRules": [
+          {
+            "ruleSequence": 50,
+            "name": "XForwardedHostRewrite",
+            "conditions": [],
+            "actionSet": {
+              "requestHeaderConfigurations": [
+                {
+                  "headerName": "X-Forwarded-Host",
+                  "headerValue": "{http_req_host}"
+                }
+              ],
+              "responseHeaderConfigurations": []
+            }
+          },
+          {
+            "ruleSequence": 100,
+            "name": "WSGeoeventServerRewriteRule",
+            "conditions": [
+              {
+                "variable": "http_resp_Location",
+                "pattern":  "[concat('(https?):\/\/[^\/]+:6143\/(?:arcgis|',parameters('geoeventServerContext'),')(.*)$')]",
+                "ignoreCase": true,
+                "negate": false
+              }
+            ],
+            "actionSet": {
+              "requestHeaderConfigurations": [],
+              "responseHeaderConfigurations": [
+                {
+                  "headerName": "RewriteLocationValue",
+                  "headerValue": "[concat('{http_resp_Location_1}://{http_req_host}/',parameters('geoeventServerContext'),'{http_resp_Location_2}')]"
+                },
+                {
+                  "headerName": "Location",
+                  "headerValue": "[concat('{http_resp_Location_1}://{http_req_host}/',parameters('geoeventServerContext'),'wss','{http_resp_Location_2}')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

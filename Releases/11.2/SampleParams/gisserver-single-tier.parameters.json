@@ -73,7 +73,7 @@
         "0": {
           "Publisher": "esri",
           "Offer": "arcgis-enterprise",
-          "SKU": "byol-111",
+          "SKU": "byol-112",
           "AzureVMImageType": 0
         }
       }

@@ -1,9 +1,12 @@
-{
+﻿{
   "#schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "location": {
       "value": "eastus"
+    },
+    "isMultiTier":{
+      "value": "true"
     },
     "environment": {
       "value": "AzureCloud"
@@ -68,48 +71,72 @@
     "appGatewayResourceGroupName": {
       "value": "[TODO - Resource Group specified in deployArcGIS.sh. Base Deployment will be created in this Resource Group.]"
     },
-    "imageReferences": {
-      "value": {
-        "0": {
-          "Publisher": "esri",
-          "Offer": "arcgis-enterprise",
-          "SKU": "byol-112",
-          "AzureVMImageType": 0
-        }
-      }
-    },
     "adminUsername": {
       "value": "[TODO - Machine Administrator Account]"
     },
     "adminPassword": {
       "value": "[TODO]"
     },
-    "fileShareVirtualMachineName": {
-      "value": "gmFileShare"
-    },
-    "fileShareVirtualMachineSize": {
-      "value": "Standard_DS3_v2"
-    },
-    "fileShareVirtualMachineOSDiskType": {
-      "value": "Premium_LRS"
-    },
-    "fileShareVirtualMachineOsDiskSize": {
-      "value": 128
+    "virtualMachines":{
+      "value": [
+        {
+          "VMName": "gmFileShare",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "MicrosoftWindowsServer",
+            "Offer": "WindowsServer",
+            "SKU": "2022-datacenter-smalldisk-g2",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "FileShare",
+          "DataDisks": []
+        },
+        {
+          "VMName": "gmServer-0",
+          "AzureVMImageType": 2,
+          "ImageSpec": {
+            "ComputeGalleryImageVersionResourceId": "/subscriptions/130acf9f-6487-4772-9bf4-36c072f7d675/resourceGroups/AZUREPACKERBUILDRG/providers/Microsoft.Compute/galleries/arcgisforserverbuild/images/arcgis-enterprise-115/versions/115.56106.1118"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "Server",
+          "DataDisks": []
+        },
+        {
+          "VMName": "gmServer-1",
+          "AzureVMImageType": 2,
+          "ImageSpec": {
+            "ComputeGalleryImageVersionResourceId": "/subscriptions/130acf9f-6487-4772-9bf4-36c072f7d675/resourceGroups/AZUREPACKERBUILDRG/providers/Microsoft.Compute/galleries/arcgisforserverbuild/images/arcgis-enterprise-115/versions/115.56106.1118"
+          },
+          "VMSize": "Standard_D4s_v5",
+          "OSDiskType": "Premium_LRS",
+          "OSDiskSize": 128,
+          "VMRoles": "Server",
+          "DataDisks": []
+        },
+        {
+          "VMName": "gmJumpbox",
+          "AzureVMImageType": 0,
+          "ImageSpec": {
+            "Publisher": "MicrosoftWindowsServer",
+            "Offer": "WindowsServer",
+            "SKU": "2022-datacenter-smalldisk-g2",
+            "Version": "latest"
+          },
+          "VMSize": "Standard_D2s_v5",
+          "OSDiskType": "Standard_LRS",
+          "OSDiskSize": 64,
+          "VMRoles": "RDPJumpBox",
+          "DataDisks": []
+        }
+      ]
     },
     "virtualMachineNames": {
-      "value": "ssServer-0"
-    },
-    "virtualMachineImageSpecs": {
-      "value": "0"
-    },
-    "virtualMachineSize": {
-      "value": "Standard_DS3_v2"
-    },
-    "virtualMachineOSDiskType": {
-      "value": "Premium_LRS"
-    },
-    "virtualMachineOSDiskSize": {
-      "value": 128
+      "value": "gmServer-0,gmServer-1"
     },
     "timeZoneId": {
       "value": "Pacific Standard Time"
@@ -129,10 +156,16 @@
     "windowsDomainAdministratorPassword": {
       "value": ""
     },
-    "omsWorkspaceName": {
+    "logAnalyticsWorkspaceName": {
       "value": ""
     },
-    "omsWorkspaceResourceGroupName": {
+    "logAnalyticsWorkspaceResourceGroupName": {
+      "value": ""
+    },
+    "azureMonitoringAgentUserAssignedIdentityId": {
+      "value": ""
+    },
+    "azureMonitoringAgentUserAssignedIdentityClientId":{
       "value": ""
     },
     "serverContext": {
@@ -168,6 +201,18 @@
     "fileShareName": {
       "value": "fileshare"
     },
+    "usesFileShareVirtualMachine":{
+      "value": true
+    },
+    "useExistingFileShare":{
+      "value": false
+    },
+    "useFileShareMachineOfBaseDeployment":{
+      "value": false
+    },
+    "fileShareVirtualMachineName": {
+      "value": "gmFileShare"
+    },
     "cloudStorageAccountName": {
       "value": ""
     },
@@ -190,6 +235,9 @@
       "value": ""
     },
     "cloudStorageServicePrincipalClientId": {
+      "value": ""
+    },
+    "cloudStorageServicePrincipalAuthorityHost":{
       "value": ""
     },
     "cloudStorageServicePrincipalClientSecret": {
@@ -249,26 +297,8 @@
     "databaseName": {
       "value": ""
     },
-    "isManaged": {
-      "value": false
-    },
     "enableGeodatabase": {
       "value": false
-    },
-    "sqlServerVirtualMachineSize": {
-      "value": "Standard_DS3_v2"
-    },
-    "sqlServerImageSku": {
-      "value": "Enterprise"
-    },
-    "sqlServerImageOffer": {
-      "value": "SQL2016SP1-WS2016"
-    },
-    "sqlServerVirtualMachineOSDiskType": {
-      "value": "Premium_LRS"
-    },
-    "sqlServerVirtualMachineOSDiskSize": {
-      "value": 128
     },
     "debugMode": {
       "value": false
@@ -288,11 +318,35 @@
     "userAssignedIdentities": {
       "value": {
         "<ResourceId of Identity 1>":{},
-        "<ResourceId of Identity 2>":{},
+        "<ResourceId of Identity 2>":{}
       }
     },
+    "enableTrustedLaunch":{
+      "value": "[Flag to enable Trusted Launch]"
+    },
+    "secureBootEnabled":{
+      "value": "[Additional flag to enable Secure Boot if Trusted Launch is enabled]"
+    },
+    "vTpmEnabled":{
+      "value": "[Additional flag to enable vTPM if Trusted Launch is enabled]"
+    },
+    "removeAndUninstallExtraArtifacts":{
+      "value": "[Flag to run utility at the end of deployment to remove and uninstall extra artifacts and setups not required for the deployment]"
+    },
+    "outboundConnectivityMethod":{
+      "value": "[Explicity Outbound Conectivity for Azure Virtual Machines - LoadBalancer | NatGateway]"
+    },
+    "natGatewayResourceGroup":{
+      "value": "[If outboundConnectivityMethod is NatGateway, Resource Group in which the NAT Gateway is present]"
+    },
+    "natGatewayName":{
+      "value": "[If outboundConnectivityMethod is NatGateway, Name of the NAT Gateway]"
+    },
+    "baseDeploymentResourcePrefix":{
+      "value": "[Resource Prefix of the Base Deployment]"
+    },
     "arcgisDeploymentVersion": {
-      "value": "11.1"
+      "value": "11.4"
     }
   }
 }
