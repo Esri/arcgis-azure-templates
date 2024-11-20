@@ -940,7 +940,7 @@
       "Server": "[variables('serverAvailablitySetName')]",
       "Portal": "[variables('portalAvailablitySetName')]",
       "DataStore": "[variables('dataStoreAvailablitySetName')]",
-      "SQLServerDatabase": "[concat(parameters('deploymentPrefix'), 'AvailabilitySet-SQLServerDatabase')]",
+      "SQLServerDatabase": "[concat(parameters('deploymentPrefix'), 'AvailabilitySet-SQLServerDatabase')]"
     },
     "tileCacheDataStoreVirtualMachineNameOptions": {
       "true": "[variables('tileCacheDataStoreVirtualMachineNames')]",
