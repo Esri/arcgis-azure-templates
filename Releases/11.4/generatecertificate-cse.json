@@ -1,0 +1,135 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "metadata": {
+        "description": "The Location For the resources"
+      },
+      "type": "string"
+    },
+    "vmName": {
+      "metadata": {
+        "description": "The name of the vm"
+      },
+      "type": "string"
+    },
+    "serverRole": {
+      "metadata": {
+        "description": "The role of the server machine"
+      },
+      "type": "string"
+    },
+    "useSelfSignedInternalSSLCertificate": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "selfSignedSSLCertificatePassword": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+    "serverInternalCertificateFileName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "portalInternalCertificateFileName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "fileShareName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "serverVirtualMachineNames": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "portalVirtualMachineNames": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "useExistingFileShare": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "useExistingFileShareMachineOfBaseDeployment": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "fileShareMachineName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "fileSharePath": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "externalDnsHostName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "serverContext": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "portalContext": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "arcgisServiceAccountUserName": {
+      "type": "string",
+      "defaultValue": "arcgis"
+    },
+    "arcgisServiceAccountPassword": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "fileUri": [
+      "[concat(parameters('_artifactsLocation'),'/GenerateSSLCerts.ps1', parameters('_artifactsLocationSasToken'))]"
+    ],
+    "serverUserProvidedCertUris": [
+      "[concat(parameters('_artifactsLocation'),'/',parameters('serverInternalCertificateFileName'), parameters('_artifactsLocationSasToken'))]"
+    ],
+    "portalUserProvidedCertUris": [
+      "[concat(parameters('_artifactsLocation'),'/',parameters('portalInternalCertificateFileName'), parameters('_artifactsLocationSasToken'))]"
+    ],
+    "computeApiVersionForVirtualMachines": "2024-07-01"
+  },
+  "resources": [
+    {
+      "condition": "[not(empty(parameters('arcgisServiceAccountPassword')))]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "name": "[concat(parameters('vmName'), '/','cse')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.8",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[if(parameters('useSelfSignedInternalSSLCertificate'),variables('fileUri'),if(empty(parameters('portalInternalCertificateFileName')),union(variables('fileUri'),variables('serverUserProvidedCertUris')),union(variables('fileUri'),variables('serverUserProvidedCertUris'),variables('portalUserProvidedCertUris'))))]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File .\\GenerateSSLCerts.ps1 -ExternalDnsHostName \"',parameters('externalDnsHostName'), '\" -ServerMachineNames \"',parameters('serverVirtualMachineNames'),'\" -PortalMachineNames \"',parameters('portalVirtualMachineNames'),'\" -ServerRole \"',parameters('serverRole'),'\" -ServerContext \"',parameters('serverContext'),'\" -PortalContext \"',parameters('portalContext'),'\" ', if(parameters('useExistingFileShare'),concat('-UseExistingFileShare -FileSharePath \"',parameters('fileSharePath'),'\" ',if(parameters('useExistingFileShareMachineOfBaseDeployment'),concat(' -UseExistingFileShareMachineOfBaseDeployment -FileShareMachineName \"',parameters('fileShareMachineName'),'\" '),'')),''),concat(' -FileShareName \"',parameters('fileShareName'),'\" '), if(parameters('useSelfSignedInternalSSLCertificate'),concat('-UseInternalSelfSignedCertificate -CertificatePassword ',parameters('selfSignedSSLCertificatePassword')), concat(' -ServerInternalCertificateFileName \"',if(empty(parameters('serverInternalCertificateFileName')), '', parameters('serverInternalCertificateFileName')),'\" -PortalInternalCertificateFileName \"', if(empty(parameters('portalInternalCertificateFileName')), '',  parameters('portalInternalCertificateFileName')),'\"')),' -ArcGISRunAsAccountCredentialUserName \"',parameters('arcgisServiceAccountUserName'),'\" -ArcGISRunAsAccountCredentialPassword \"',parameters('arcgisServiceAccountPassword'),'\"')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "instanceView": {
+      "value": "[if(not(empty(parameters('arcgisServiceAccountPassword'))),reference(resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('vmName'), 'cse')).instanceView,createObject())]",
+      "type": "object"
+    }
+  }
+}

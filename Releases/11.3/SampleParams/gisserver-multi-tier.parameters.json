@@ -73,7 +73,7 @@
         "0": {
           "Publisher": "esri",
           "Offer": "arcgis-enterprise",
-          "SKU": "byol-112",
+          "SKU": "byol-113",
           "AzureVMImageType": 0
         }
       }
@@ -189,6 +189,9 @@
     "cloudStorageServicePrincipalTenantId": {
       "value": ""
     },
+    "cloudStorageServicePrincipalAuthorityHost":{
+      "value": ""
+    },
     "cloudStorageServicePrincipalClientId": {
       "value": ""
     },
@@ -292,7 +295,7 @@
       }
     },
     "arcgisDeploymentVersion": {
-      "value": "11.1"
+      "value": "11.3"
     }
   }
 }

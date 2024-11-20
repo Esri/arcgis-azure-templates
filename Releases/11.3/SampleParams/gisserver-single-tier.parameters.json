@@ -9,7 +9,7 @@
       "value": "AzureCloud"
     },
     "deploymentPrefix": {
-      "value": "gm"
+      "value": "ss"
     },
     "usesPrivateIP": {
       "value": false
@@ -27,10 +27,10 @@
       "value": "[If usesExistingPublicIP is false, not required. Else name of an existing public ip]"
     },
     "dnsPrefixForPublicIpAddress": {
-      "value": "gmm"
+      "value": "ssm"
     },
     "externalDnsHostName": {
-      "value": "[TODO - Example (If using Self Signed Certificate) - gmm.eastus.cloudapp.azure.com ]"
+      "value": "[TODO - Example (If using Self Signed Certificate) - ssm.eastus.cloudapp.azure.com ]"
     },
     "secondaryDnsHostName": {
       "value": "[TODO - Example (If using Self Signed Certificate) - bmm2.eastus.cloudapp.azure.com - the certificate should contain SAN referencing both externalDnsHostName and secondaryDnsHostName]"
@@ -63,7 +63,7 @@
       "value": "[TODO - Existing Virtual Network Empty Application Gateway Subnet]"
     },
     "appGatewayName": {
-      "value": "bmAppGateway"
+      "value": "ssAppGateway"
     },
     "appGatewayResourceGroupName": {
       "value": "[TODO - Resource Group specified in deployArcGIS.sh. Base Deployment will be created in this Resource Group.]"
@@ -73,7 +73,7 @@
         "0": {
           "Publisher": "esri",
           "Offer": "arcgis-enterprise",
-          "SKU": "byol-112",
+          "SKU": "byol-113",
           "AzureVMImageType": 0
         }
       }
@@ -83,18 +83,6 @@
     },
     "adminPassword": {
       "value": "[TODO]"
-    },
-    "fileShareVirtualMachineName": {
-      "value": "gmFileShare"
-    },
-    "fileShareVirtualMachineSize": {
-      "value": "Standard_DS3_v2"
-    },
-    "fileShareVirtualMachineOSDiskType": {
-      "value": "Premium_LRS"
-    },
-    "fileShareVirtualMachineOsDiskSize": {
-      "value": 128
     },
     "virtualMachineNames": {
       "value": "ssServer-0"
@@ -184,6 +172,9 @@
       "value": ""
     },
     "cloudStorageUserAssignedIdentityClientId": {
+      "value": ""
+    },
+    "cloudStorageServicePrincipalAuthorityHost":{
       "value": ""
     },
     "cloudStorageServicePrincipalTenantId": {
@@ -292,7 +283,7 @@
       }
     },
     "arcgisDeploymentVersion": {
-      "value": "11.1"
+      "value": "11.3"
     }
   }
 }

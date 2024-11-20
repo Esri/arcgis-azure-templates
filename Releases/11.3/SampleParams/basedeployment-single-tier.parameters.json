@@ -1,4 +1,4 @@
-{
+﻿{
   "#schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -9,7 +9,7 @@
       "value": "AzureCloud"
     },
     "deploymentPrefix": {
-      "value": "gm"
+      "value": "bs"
     },
     "usesPrivateIP": {
       "value": false
@@ -27,10 +27,10 @@
       "value": "[If usesExistingPublicIP is false, not required. Else name of an existing public ip]"
     },
     "dnsPrefixForPublicIpAddress": {
-      "value": "gmm"
+      "value": "bsm"
     },
     "externalDnsHostName": {
-      "value": "[TODO - Example (If using Self Signed Certificate) - gmm.eastus.cloudapp.azure.com ]"
+      "value": "[TODO - Example (If using Self Signed Certificate) - bsm.eastus.cloudapp.azure.com ]"
     },
     "secondaryDnsHostName": {
       "value": "[TODO - Example (If using Self Signed Certificate) - bmm2.eastus.cloudapp.azure.com - the certificate should contain SAN referencing both externalDnsHostName and secondaryDnsHostName]"
@@ -39,7 +39,7 @@
       "value": "[TODO - wildcard.eastus.cloudapp.azure.com.pfx]"
     },
     "publicKeySSLCertificateFileName": {
-      "value": "[TODO - public key associated with certificate specified in 'sslCertificateFileName' parameter ]"
+      "value": "[TODO - File name of the public key (.cer) extracted from the certificate referred in 'sslCertificateFileName' parameter. Certificate can be extracted using Windows certifacte manager or openssl ]"
     },
     "sslCertificateData": {
       "value": "[Auto-Generated from the SSL Certificate specified in 'sslCertificateFileName' param]"
@@ -63,7 +63,7 @@
       "value": "[TODO - Existing Virtual Network Empty Application Gateway Subnet]"
     },
     "appGatewayName": {
-      "value": "bmAppGateway"
+      "value": "bsAppGateway"
     },
     "appGatewayResourceGroupName": {
       "value": "[TODO - Resource Group specified in deployArcGIS.sh. Base Deployment will be created in this Resource Group.]"
@@ -73,7 +73,7 @@
         "0": {
           "Publisher": "esri",
           "Offer": "arcgis-enterprise",
-          "SKU": "byol-112",
+          "SKU": "byol-113",
           "AzureVMImageType": 0
         }
       }
@@ -84,20 +84,8 @@
     "adminPassword": {
       "value": "[TODO]"
     },
-    "fileShareVirtualMachineName": {
-      "value": "gmFileShare"
-    },
-    "fileShareVirtualMachineSize": {
-      "value": "Standard_DS3_v2"
-    },
-    "fileShareVirtualMachineOSDiskType": {
-      "value": "Premium_LRS"
-    },
-    "fileShareVirtualMachineOsDiskSize": {
-      "value": 128
-    },
     "virtualMachineNames": {
-      "value": "ssServer-0"
+      "value": "bsWebGIS-Pri"
     },
     "virtualMachineImageSpecs": {
       "value": "0"
@@ -109,6 +97,36 @@
       "value": "Premium_LRS"
     },
     "virtualMachineOSDiskSize": {
+      "value": 128
+    },
+    "spatiotemporalBigdataStoreVirtualMachineNames": {
+      "value": "Spatio-0"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineImageSpecs": {
+      "value": "0"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "spatiotemporalBigDataStoreVirtualMachineOSDiskSize": {
+      "value": 128
+    },
+    "tileCacheDataStoreVirtualMachineNames": {
+      "value": "TileCache-0"
+    },
+    "tileCacheDataStoreVirtualMachineImageSpecs": {
+      "value": "0"
+    },
+    "tileCacheDataStoreVirtualMachineSize": {
+      "value": "Standard_DS3_v2"
+    },
+    "tileCacheDataStoreVirtualMachineOSDiskType": {
+      "value": "Premium_LRS"
+    },
+    "tileCacheDataStoreVirtualMachineOSDiskSize": {
       "value": 128
     },
     "timeZoneId": {
@@ -138,8 +156,8 @@
     "serverContext": {
       "value": "server"
     },
-    "geoeventServerContext": {
-      "value": ""
+    "portalContext": {
+      "value": "portal"
     },
     "arcgisServiceAccountUserName": {
       "value": "arcgis"
@@ -158,6 +176,24 @@
     },
     "serverLicenseFileName": {
       "value": "[TODO - server.ecp]"
+    },
+    "portalLicenseFileName": {
+      "value": "[TODO - portal.json]"
+    },
+    "portalLicenseUserTypeId": {
+      "value": "[TODO - creatorUT]"
+    },
+    "dataStoreTypes": {
+      "value": "Relational,TileCache,SpatioTemporal"
+    },
+    "dataStoreTypesForBaseDeploymentServers": {
+      "value": "Relational"
+    },
+    "isMultiMachineTileCacheDataStore": {
+      "value": false
+    },
+    "isTileCacheDataStoreClustered": {
+      "value": false
     },
     "useCloudStorage": {
       "value": false
@@ -189,86 +225,17 @@
     "cloudStorageServicePrincipalTenantId": {
       "value": ""
     },
+    "cloudStorageServicePrincipalAuthorityHost": {
+      "value": ""
+    },
     "cloudStorageServicePrincipalClientId": {
       "value": ""
     },
     "cloudStorageServicePrincipalClientSecret": {
       "value": ""
     },
-    "cloudStores": {
-      "value": {}
-    },
     "enableServerLogHarvesterPlugin": {
       "value": false
-    },
-    "federateSite": {
-      "value": false
-    },
-    "serverRole": {
-      "value": "GeneralPurposeServer"
-    },
-    "serverFunctions": {
-      "value": ""
-    },
-    "federatedSiteDeploymentId": {
-      "value": ""
-    },
-    "federatedSitePortalContext": {
-      "value": ""
-    },
-    "portalSiteAdministratorAccountUserName": {
-      "value": ""
-    },
-    "portalSiteAdministratorAccountPassword": {
-      "value": ""
-    },
-    "gisServerMachineNamesOnHostingServer": {
-      "value": ""
-    },
-    "portalMachineNamesOnHostingServer": {
-      "value": ""
-    },
-    "databaseOption": {
-      "value": "None"
-    },
-    "databaseServerAdministratorAccountUserName": {
-      "value": ""
-    },
-    "databaseServerAdministratorAccountPassword": {
-      "value": ""
-    },
-    "databaseUserAccountUserName": {
-      "value": ""
-    },
-    "databaseUserAccountPassword": {
-      "value": ""
-    },
-    "databaseServerHostName": {
-      "value": ""
-    },
-    "databaseName": {
-      "value": ""
-    },
-    "isManaged": {
-      "value": false
-    },
-    "enableGeodatabase": {
-      "value": false
-    },
-    "sqlServerVirtualMachineSize": {
-      "value": "Standard_DS3_v2"
-    },
-    "sqlServerImageSku": {
-      "value": "Enterprise"
-    },
-    "sqlServerImageOffer": {
-      "value": "SQL2016SP1-WS2016"
-    },
-    "sqlServerVirtualMachineOSDiskType": {
-      "value": "Premium_LRS"
-    },
-    "sqlServerVirtualMachineOSDiskSize": {
-      "value": 128
     },
     "debugMode": {
       "value": false
@@ -282,9 +249,6 @@
     "autoShutDownTime": {
       "value": "0000"
     },
-    "useArcGISWebAdaptorForNotebookServer": {
-      "value": false
-    },
     "userAssignedIdentities": {
       "value": {
         "<ResourceId of Identity 1>":{},
@@ -292,7 +256,7 @@
       }
     },
     "arcgisDeploymentVersion": {
-      "value": "11.1"
+      "value": "11.3"
     }
   }
 }
