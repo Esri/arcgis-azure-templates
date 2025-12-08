@@ -1,0 +1,89 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "arcgisVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "ArcGIS Version"
+      }
+    },
+    "vmMachineConfigList": {
+      "type": "array",
+      "metadata": {
+        "description": "Machine Roles"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "(SAS) Shared Access Token for the deployment artifacts in an Azure Blob Storage Container"
+      },
+      "defaultValue": ""
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "Fully qualified URL for the deployment artifacts location in an Azure Blob Storage Container"
+      },
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "dscExtensionArchiveFileName": "DSC.zip",
+    "computeApiVersionForVirtualMachines": "2024-07-01",
+    "dscScriptFunction": "UninstallExtraSetups"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines/runCommands",
+      "apiVersion": "[variables('computeApiVersionForVirtualMachines')]",
+      "name": "[concat(parameters('vmMachineConfigList')[copyIndex()]['vmName'],'/DSCConfigRunCMD')]",
+      "copy": {
+        "name": "RemoveExtraSetupsDSCRunCMD-copy",
+        "count": "[length(parameters('vmMachineConfigList'))]"
+      },
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Delete Extra Setups Configuration Script"
+      },
+      "properties": {
+        "source": {
+          "scriptUri": "[concat(parameters('_artifactsLocation'),'/','RunCommandInvokeARMTemplateDSC.ps1', parameters('_artifactsLocationSasToken'))]"
+        },
+        "timeoutInSeconds": 7200,
+        "asyncExecution": true,
+        "treatFailureAsDeploymentFailure": false,
+        "parameters": [
+          {
+            "name": "DSCZipFileUrl",
+            "value": "[uriComponent(concat(parameters('_artifactsLocation'),'/', variables('dscExtensionArchiveFileName'), parameters('_artifactsLocationSasToken')))]"
+          },
+          {
+            "name": "ConfigurationName",
+            "value": "[variables('dscScriptFunction')]"
+          },
+          {
+            "name": "Version",
+            "value": "[parameters('arcgisVersion')]"
+          },
+          {
+            "name": "ServerRole",
+            "value": "[parameters('vmMachineConfigList')[copyIndex()]['serverRole']]"
+          },
+          {
+            "name": "MachineRoles",
+            "value": "[parameters('vmMachineConfigList')[copyIndex()]['machineRoles']]"
+          }
+        ]
+      }
+    }
+  ]
+}

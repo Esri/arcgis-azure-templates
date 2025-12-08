@@ -96,9 +96,12 @@
         },
         {
           "VMName": "gmServer-0",
-          "AzureVMImageType": 2,
+          "AzureVMImageType": 0,
           "ImageSpec": {
-            "ComputeGalleryImageVersionResourceId": "/subscriptions/130acf9f-6487-4772-9bf4-36c072f7d675/resourceGroups/AZUREPACKERBUILDRG/providers/Microsoft.Compute/galleries/arcgisforserverbuild/images/arcgis-enterprise-115/versions/115.56106.1118"
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
           },
           "VMSize": "Standard_D4s_v5",
           "OSDiskType": "Premium_LRS",
@@ -108,9 +111,12 @@
         },
         {
           "VMName": "gmServer-1",
-          "AzureVMImageType": 2,
+          "AzureVMImageType": 0,
           "ImageSpec": {
-            "ComputeGalleryImageVersionResourceId": "/subscriptions/130acf9f-6487-4772-9bf4-36c072f7d675/resourceGroups/AZUREPACKERBUILDRG/providers/Microsoft.Compute/galleries/arcgisforserverbuild/images/arcgis-enterprise-115/versions/115.56106.1118"
+            "Publisher": "esri",
+            "Offer": "arcgis-enterprise",
+            "SKU": "byol-114",
+            "Version": "latest"
           },
           "VMSize": "Standard_D4s_v5",
           "OSDiskType": "Premium_LRS",

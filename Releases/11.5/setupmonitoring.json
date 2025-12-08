@@ -1,0 +1,315 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "metadata": {
+        "description": "The Location For the resources"
+      },
+      "type": "string"
+    },
+    "deploymentPrefix": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Prefix applied to all resources provisioned as part of this template"
+      },
+      "maxLength": 3
+    },
+    "serverContext": {
+      "type": "string",
+      "metadata": {
+        "description": "ArcGIS Server Site Context"
+      }
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Monitor Logs workspace name"
+      },
+      "defaultValue": ""
+    },
+    "logAnalyticsWorkspaceResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Monitor Logs Workspace Resource Group Name"
+      },
+      "defaultValue": ""
+    },
+    "deploymentId": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Monitor Logs Workspace Resource Group Name"
+      },
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "deploymentsApiVersion": "2024-03-01",
+    "dataCollectionRuleName": "[concat(parameters('deploymentPrefix'), 'DataCollectionRule-',parameters('serverContext'))]",
+    "dataCollectionEndpointName": "[concat(parameters('deploymentPrefix'), 'DataCollectionEndpoint-',parameters('serverContext'))]",
+    "logAnalyticsTableName": "[concat(parameters('deploymentPrefix'), 'ags_CL')]"
+  },
+  "resources": [
+    {
+      "condition": "[and(not(empty(parameters('logAnalyticsWorkspaceResourceGroupName'))),not(empty(parameters('logAnalyticsWorkspaceName'))))]",
+      "type": "Microsoft.Insights/dataCollectionEndpoints",
+      "apiVersion": "2023-03-11",
+      "name": "[variables('dataCollectionEndpointName')]",
+      "location": "[parameters('location')]",
+      "kind": "Windows",
+      "tags": {
+        "arcgis-deployment-id": "[parameters('deploymentId')]",
+        "displayName": "[concat('Data Collection Endpoint -', parameters('serverContext'))]"
+      },
+      "properties": {
+        "networkAcls": {
+          "publicNetworkAccess": "Enabled"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('deploymentsApiVersion')]",
+      "name": "[concat('createLogAnalyticsTable-',variables('logAnalyticsTableName'))]",
+      "resourceGroup": "[parameters('logAnalyticsWorkspaceResourceGroupName')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+          },
+          "variables": {
+          },
+          "resources": [
+            {
+              "type": "Microsoft.OperationalInsights/workspaces/tables",
+              "apiVersion": "2022-10-01",
+              "name": "[concat(parameters('logAnalyticsWorkspaceName'), '/', variables('logAnalyticsTableName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "totalRetentionInDays": 30,
+                "plan": "Analytics",
+                "schema": {
+                  "name": "[variables('logAnalyticsTableName')]",
+                  "columns": [
+                    {
+                      "name": "TimeGenerated",
+                      "type": "DateTime",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "logType",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "code",
+                      "type": "int",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "source",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "methodName",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "machine",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "process",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "thread",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "elapsed",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "requestId",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "user",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    },
+                    {
+                      "name": "message",
+                      "type": "String",
+                      "isDefaultDisplay": false,
+                      "isHidden": false
+                    }
+                  ]
+                },
+                "retentionInDays": 30
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2023-03-11",
+      "name": "[variables('dataCollectionRuleName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/dataCollectionEndpoints', variables('dataCollectionEndpointName'))]",
+        "[concat('createLogAnalyticsTable-',variables('logAnalyticsTableName'))]"
+      ],
+      "tags": {
+        "arcgis-deployment-id": "[parameters('deploymentId')]",
+        "displayName": "[concat('Data Collection Endpoint -', parameters('serverContext'))]"
+      },
+      "properties": {
+        "dataCollectionEndpointId": "[resourceId('Microsoft.Insights/dataCollectionEndpoints', variables('dataCollectionEndpointName'))]",
+        "description": "Data collection rule for VM Insights.",
+        "streamDeclarations": {
+          "[concat('Custom-Text-', variables('logAnalyticsTableName'))]": {
+            "columns": [
+              {
+                "name": "TimeGenerated",
+                "type": "datetime"
+              },
+              {
+                "name": "RawData",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "dataSources": {
+          "performanceCounters": [
+            {
+              "name": "PerfEvents",
+              "streams": [
+                "Microsoft-Perf"
+              ],
+              "scheduledTransferPeriod": "PT1M",
+              "samplingFrequencyInSeconds": 15,
+              "counterSpecifiers": [
+                "\\Processor(_Total)\\% Processor Time",
+                "\\Memory\\Committed Bytes",
+                "\\LogicalDisk(_Total)\\Free Megabytes",
+                "\\PhysicalDisk(_Total)\\Avg. Disk Queue Length"
+              ]
+            },
+            {
+              "name": "ExtraPerfEvents",
+              "streams": [
+                "Microsoft-Perf"
+              ],
+              "scheduledTransferPeriod": "PT5M",
+              "samplingFrequencyInSeconds": 30,
+              "counterSpecifiers": [
+                "\\Process(_Total)\\Thread Count"
+              ]
+            }
+          ],
+          "windowsEventLogs": [
+            {
+              "name": "WindowsSecurityEvents",
+              "streams": [
+                "Microsoft-Event"
+              ],
+              "scheduledTransferPeriod": "PT1M",
+              "xPathQueries": [
+                "Security!*"
+              ]
+            },
+            {
+              "name": "WindowsAppEvents",
+              "streams": [
+                "Microsoft-Event"
+              ],
+              "scheduledTransferPeriod": "PT5M",
+              "xPathQueries": [
+                "System!*[System[(Level = 1 or Level = 2 or Level = 3)]]",
+                "Application!*[System[(Level = 1 or Level = 2 or Level = 3)]]"
+              ]
+            }
+          ],
+          "logFiles": [
+            {
+              "streams": [
+                "[concat('Custom-Text-', variables('logAnalyticsTableName'))]"
+              ],
+              "filePatterns": [
+                "C:\\ArcGIS\\ServerLogs\\*.log"
+              ],
+              "format": "text",
+              "name": "[concat('Custom-Text-', variables('logAnalyticsTableName'))]",
+              "settings": {
+                "text": {
+                  "recordStartTimestampFormat": "ISO 8601"
+                }
+              }
+            }
+          ]
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId(parameters('logAnalyticsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName'))]",
+              "name": "logAnalyticsWorkspace"
+            },
+            {
+              "workspaceResourceId": "[resourceId(parameters('logAnalyticsWorkspaceResourceGroupName'), 'Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName'))]",
+              "name": "laCustomLogsWorkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Microsoft-Perf",
+              "Microsoft-Event"
+            ],
+            "destinations": [
+              "logAnalyticsWorkspace"
+            ]
+          },
+          {
+            "streams": [
+              "[concat('Custom-Text-', variables('logAnalyticsTableName'))]"
+            ],
+            "destinations": [
+              "laCustomLogsWorkspace"
+            ],
+            "transformKql": "source | project d = split(RawData,',') | project TimeGenerated=todatetime(d[0]), logType=tostring(d[1]), code=toint(d[2]), source=tostring(d[3]), methodName=tostring(d[4]), machine=tostring(d[5]), process=tostring(d[6]), thread=tostring(d[7]), elapsed=tostring(d[8]), requestId=tostring(d[9]), user=tostring(d[10]), message=trim('[]',tostring(d[11]))",
+            "outputStream": "[concat('Custom-', variables('logAnalyticsTableName'))]"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+  }
+}

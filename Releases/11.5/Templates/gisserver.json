@@ -1,0 +1,1931 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus",
+      "metadata": {
+        "description": "Azure Region for the site deployment. All Resources provisioned are created here"
+      }
+    },
+    "isMultiTier": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Indicates whether the deployment is a multi-tier deployment"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "AzureCloud",
+      "allowedValues": [
+        "AzureCloud",
+        "AzureGermanCloud",
+        "AzureUSGovernment",
+        "AzureChinaCloud"
+      ],
+      "metadata": {
+        "description": "(Optional) Azure Environment for the deployment. E.g:- Public Azure, U.S. Gov. Cloud, Azure Germany, Azure China"
+      }
+    },
+    "deploymentPrefix": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Prefix applied to all resources provisioned as part of this template"
+      },
+      "maxLength": 3
+    },
+    "usesPrivateIP": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates front end IP of App Gateway is a private IP"
+      }
+    },
+    "deployPublicIPWhenUsingPrivateIP": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "(Optional) Deploys an unused public IP when using a Private Ip as Application Gateway V2 doesn't support only Private IP deployments yet."
+      }
+    },
+    "usesExistingPublicIP": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether to use existing Public IP is usesPrivateIP is false"
+      }
+    },
+    "existingPublicIPResourceGroupName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Name of the Resource Group for the existing Public IP"
+      }
+    },
+    "existingPublicIPName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Name of the existing Public IP"
+      }
+    },
+    "dnsPrefixForPublicIpAddress": {
+      "type": "string",
+      "defaultValue": "",
+      "maxLength": 80,
+      "metadata": {
+        "description": "DNS name for the Public IP address resource asociated with the site deployment. It needs to be unique across the region of deployment"
+      }
+    },
+    "externalDnsHostName": {
+      "type": "string",
+      "metadata": {
+        "description": "DNS name for the site deployment. It will be a custom domain (e.g. mysite.contoso.com) if using a Private IP or SSL certificate, otherwise will be the Azure DNS <dnsPrefixForPublicIpAddress>.<location>.cloudapp.azure.com"
+      }
+    },
+    "secondaryDnsHostName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Private DNS name for the site deployment. It will be a custom domain (e.g. mysite.contoso.com) if using a Private IP or an SSL certificate, otherwise will be the Azure DNS <dnsPrefixForPublicIpAddress>.<location>.cloudapp.azure.com"
+      }
+    },
+    "sslCertificateFileName": {
+      "type": "string",
+      "metadata": {
+        "description": "File name for the SSL Certificate"
+      },
+      "defaultValue": ""
+    },
+    "publicKeySSLCertificateFileName": {
+      "type": "string",
+      "metadata": {
+        "description": "File name for the Public Key SSL Certificate"
+      },
+      "defaultValue": ""
+    },
+    "sslCertificateData": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Base-64 encoded form of the .pfx file. This is the cert terminating on the Application Gateway."
+      }
+    },
+    "sslCertificatePassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Password for .pfx certificate"
+      }
+    },
+    "useSelfSignedInternalSSLCertificate": {
+      "type": "bool",
+      "metadata": {
+        "description": "Use Self Signed Internal Certificate"
+      },
+      "defaultValue": true
+    },
+    "selfSignedSSLCertificatePassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Private Key for the Backend Self signed SSL Certificate"
+      },
+      "defaultValue": ""
+    },
+    "serverInternalCertificateFileName": {
+      "type": "string",
+      "metadata": {
+        "description": "File name for the SSL Certificate"
+      },
+      "defaultValue": ""
+    },
+    "serverInternalCertificatePassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Accessible file path for SSL Certificate"
+      },
+      "defaultValue": ""
+    },
+    "virtualNetworkResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Resource Group for the existing Virtual Network specified with the 'existingVirtualNetworkName' parameter"
+      }
+    },
+    "existingVirtualNetworkName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing Virtual Network"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing Subnet within the Virtual Network specified with the 'existingVirtualNetworkName' parameter"
+      }
+    },
+    "appGatewaySubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing Subnet within the Virtual Network specified with the 'existingVirtualNetworkName' parameter"
+      }
+    },
+    "isAddingServersOrRegisterEGDB": {
+      "type": "bool",
+      "metadata": {
+        "description": "True if adding machines or an egdb to an existing deployment"
+      },
+      "defaultValue": false
+    },
+    "isUpdatingCertificates": {
+      "type": "bool",
+      "metadata": {
+        "description": "True if updating certificates of an existing deployment"
+      },
+      "defaultValue": false
+    },
+    "appGatewayPrivateIP": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Available IP address in Application Gateway Subnet Range to be used with external dns name"
+      }
+    },
+    "appGatewayPrivateIPSubnet": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Subnet associated with Private IP"
+      }
+    },
+    "appGatewayName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Application Gateway Resource"
+      }
+    },
+    "appGatewayResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Application Gateway Resource Group Name"
+      }
+    },
+    "windowsServerBaseImageReferenceVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "Windows Base Image reference version to be either used for RDP jump box or Fileshare Machine"
+      },
+      "defaultValue": "latest"
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Username for the Virtual Machine Administrator (Windows) Account"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Password for the Virtual Machine Administrator (Windows) Account"
+      }
+    },
+    "userAssignedIdentities": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "User Assigned Identity"
+      }
+    },
+    "virtualMachines": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of Virtual Machines to be provisioned in the deployment"
+      }
+    },
+    "virtualMachineNames": {
+      "type": "string",
+      "metadata": {
+        "description": "Comma seperated list of names for the Virtual Machines. A maximum of 2 names may be specified for the single tier base deployment"
+      }
+    },
+    "timeZoneId": {
+      "type": "string",
+      "defaultValue": "Pacific Standard Time",
+      "metadata": {
+        "description": "(Optional) Standard Id for the timezone to set for the Virtual Machines in the deployment"
+      }
+    },
+    "enableAutomaticUpdates": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether to enable Automatic (Windows) Operating System updates"
+      }
+    },
+    "joinWindowsDomain": {
+      "type": "bool",
+      "metadata": {
+        "description": "(Optional) Indicates whether the virtual machines should join an existing Windows Active Directory which provides domain join and DNS services in the Virtual Network"
+      },
+      "defaultValue": false
+    },
+    "windowsDomainName": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Domain FQDN where the virtual machine will be joined. Required if joinWindowsDomain = true"
+      },
+      "defaultValue": ""
+    },
+    "windowsDomainAdministratorUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Username for the Active Directory Domain Administrator account where the virtual machine will be joined. Required if joinWindowsDomain = true"
+      },
+      "defaultValue": ""
+    },
+    "windowsDomainAdministratorPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "(Optional) Password for the Active Directory Domain Administrator account where the virtual machine will be joined. Required if joinWindowsDomain = true"
+      },
+      "defaultValue": ""
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Monitor Logs workspace name"
+      },
+      "defaultValue": ""
+    },
+    "logAnalyticsWorkspaceResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Monitor Logs Workspace Resource Group Name"
+      },
+      "defaultValue": ""
+    },
+    "azureMonitoringAgentUserAssignedIdentityId": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Monitoring Agent User Assigned Identity"
+      },
+      "defaultValue": ""
+    },
+    "azureMonitoringAgentUserAssignedIdentityClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Monitoring Agent User Assigned Identity"
+      },
+      "defaultValue": ""
+    },
+    "serverContext": {
+      "type": "string",
+      "metadata": {
+        "description": "ArcGIS Server Site Context"
+      }
+    },
+    "geoeventServerContext": {
+      "type": "string",
+      "metadata": {
+        "description": "ArcGIS Server Site Context"
+      },
+      "defaultValue": ""
+    },
+    "arcgisServiceAccountUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "User name for the ArcGIS (Windows) Service Account"
+      },
+      "defaultValue": "arcgis"
+    },
+    "arcgisServiceAccountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the ArcGIS (Windows) Service Account"
+      },
+      "defaultValue": ""
+    },
+    "arcgisServiceAccountIsDomainAccount": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether ArcGIS Service Account is a Domain Account."
+      }
+    },
+    "primarySiteAdministratorAccountUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "User name for the ArcGIS Server Site Primary Site Administrator"
+      },
+      "defaultValue": "siteadmin"
+    },
+    "primarySiteAdministratorAccountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "User name for the ArcGIS Server Site Primary Site Administrator"
+      }
+    },
+    "serverLicenseFileName": {
+      "type": "string",
+      "metadata": {
+        "description": "File name for the ArcGIS Server License"
+      },
+      "defaultValue": ""
+    },
+    "usesFileShareVirtualMachine": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether a File Share Virtual Machine is used for the server config and content store"
+      }
+    },
+    "useExistingFileShare": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether an existing File Share is used for the server config store"
+      }
+    },
+    "fileSharePath": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) URI for the File Share used for the server config store."
+      },
+      "defaultValue": ""
+    },
+    "useFileShareMachineOfBaseDeployment": {
+      "type": "bool",
+      "metadata": {
+        "description": "(Optional) "
+      },
+      "defaultValue": false
+    },
+    "fileShareVirtualMachineName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the File Share Virtual Machine"
+      },
+      "defaultValue": "DummyFS"
+    },
+    "fileShareName": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Name of the file share on the file share host"
+      },
+      "defaultValue": "fileshare"
+    },
+    "useCloudStorage": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether Azure Storage is used for the server config and portal content store"
+      }
+    },
+    "cloudStorageAccountName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Name of the Azure Storage Account used. Required if 'useCloudStorage' is set to true"
+      }
+    },
+    "useAzureFiles": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether Azure Files (SMB protocol) is used for the server config and portal content store"
+      }
+    },
+    "cloudStorageAccountResourceGroupName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Name of the resource group for the Azure Storage Account specified with 'cloudStorageAccountName'. Required if 'useCloudStorage' is set to true"
+      }
+    },
+    "cloudStorageAccountKey": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Storage Account Access Key for the Azure Storage Account specified with 'cloudStorageAccountName'. Required if 'useCloudStorage' is set to true"
+      }
+    },
+    "cloudStorageSASToken": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional)"
+      }
+    },
+    "cloudStorageAuthenticationType": {
+      "type": "string",
+      "defaultValue": "AccessKey",
+      "metadata": {
+        "description": "(Optional) "
+      }
+    },
+    "cloudStorageUserAssignedIdentityClientId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) "
+      }
+    },
+    "cloudStorageServicePrincipalTenantId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) "
+      }
+    },
+    "cloudStorageServicePrincipalAuthorityHost": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) "
+      }
+    },
+    "cloudStorageServicePrincipalClientId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) "
+      }
+    },
+    "cloudStorageServicePrincipalClientSecret": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) "
+      }
+    },
+    "cloudStores": {
+      "type": "secureObject",
+      "defaultValue": {
+      },
+      "metadata": {
+        "description": "(Optional) Azure Cloud Stores to be registered as Data Items on the ArcGIS Server"
+      }
+    },
+    "enableServerLogHarvesterPlugin": {
+      "type": "bool",
+      "metadata": {
+        "description": "Enable Server Log Harvester Plugin "
+      },
+      "defaultValue": false
+    },
+    "federateSite": {
+      "type": "bool",
+      "metadata": {
+        "description": "(Optional) Whether to federate the site with an Enterprise Portal."
+      },
+      "defaultValue": false
+    },
+    "serverRole": {
+      "type": "string",
+      "defaultValue": "GeneralPurposeServer",
+      "allowedValues": [
+        "GeneralPurposeServer",
+        "GeoEventServer",
+        "ImageServer",
+        "NotebookServer",
+        "MissionServer",
+        "KnowledgeServer",
+        "WorkflowManagerServer"
+      ],
+      "metadata": {
+        "description": "(Optional) Server Role (or Function) for this Site deployment."
+      }
+    },
+    "serverFunctions": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Comma seperate list of Server Role (functions). Allowed Values are RasterAnalytics, ImageHosting, NotebookServer, MissionServer"
+      },
+      "defaultValue": "GeneralPurposeServer"
+    },
+    "federatedSiteDeploymentId": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Deployment Id for the site to which this site is federated to"
+      },
+      "defaultValue": ""
+    },
+    "federatedSitePortalContext": {
+      "type": "string",
+      "metadata": {
+        "description": "ArcGIS Portal Site Context of Enterprise Portal (used to federate)"
+      },
+      "defaultValue": "portal"
+    },
+    "portalSiteAdministratorAccountUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) User name for the Primary Site Administrator account of the Enterprise Portal (used to federate)"
+      },
+      "defaultValue": "placeholder"
+    },
+    "portalSiteAdministratorAccountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "(Optional) Password for the Primary Site Administrator account of the Enterprise Portal (used to federate)"
+      },
+      "defaultValue": "placeholder"
+    },
+    "gisServerMachineNamesOnHostingServer": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Comma seperated list of GIS Server machine names from the hosting server"
+      }
+    },
+    "portalMachineNamesOnHostingServer": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Comma seperated list of Portal machine names from the hosting server"
+      }
+    },
+    "databaseOption": {
+      "type": "string",
+      "defaultValue": "None",
+      "allowedValues": [
+        "None",
+        "AzureSQLDatabase",
+        "AzurePostgreSQLDatabase",
+        "AzureFlexiblePostgreSQLDatabase",
+        "SQLServerDatabase",
+        "AzureMISQLDatabase"
+      ],
+      "metadata": {
+        "description": "(Optional) Type of Database registed as an Enterprise Geodatabase"
+      }
+    },
+    "databaseServerAdministratorAccountUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "User name for the Database Server administrator account"
+      },
+      "defaultValue": ""
+    },
+    "databaseServerAdministratorAccountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Database Server administrator account"
+      },
+      "defaultValue": ""
+    },
+    "databaseUserAccountUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "User name for the Database User account"
+      },
+      "defaultValue": ""
+    },
+    "databaseUserAccountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Database User account"
+      },
+      "defaultValue": ""
+    },
+    "databaseServerHostName": {
+      "type": "string",
+      "metadata": {
+        "description": "Host name for the Database Server. E.g:- <myServer>.database.windows.net if SQL Database or <myServerFQDN> if SQL Server on IaaS VM"
+      },
+      "defaultValue": ""
+    },
+    "databaseName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the database"
+      },
+      "defaultValue": ""
+    },
+    "enableGeodatabase": {
+      "type": "bool",
+      "metadata": {
+        "description": "Enable Geodatabase on Database to be registered"
+      },
+      "defaultValue": false
+    },
+    "registerEGDBAsRasterStore": {
+      "type": "bool",
+      "metadata": {
+        "description": "Register Geodatabase as Raster store"
+      },
+      "defaultValue": false
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "(SAS) Shared Access Token for the deployment artifacts in an Azure Blob Storage Container"
+      },
+      "defaultValue": ""
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "Fully qualified URL for the deployment artifacts location in an Azure Blob Storage Container"
+      },
+      "defaultValue": ""
+    },
+    "debugMode": {
+      "type": "bool",
+      "metadata": {
+        "description": "(Optional) Indicates whether to enable debug settings on the site deployment. Used for troubleshooting only and should not be used for a Production Deployment"
+      },
+      "defaultValue": false
+    },
+    "enableRDPAccess": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether Remote Desktop Access to the File Share Machine should be enabled."
+      }
+    },
+    "enableAutoShutDown": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether to enable auto shutdown at specified time."
+      }
+    },
+    "autoShutDownTime": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "(Optional) Auto Shut down time in hh:ss format."
+      }
+    },
+    "enableTrustedLaunch":{
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether to enable Trusted Launch on the Virtual Machines"
+      }
+    },
+    "secureBootEnabled":{
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether to enable Secure Boot on the Virtual Machines"
+      }
+    },
+    "vTpmEnabled":{
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Indicates whether to enable Virtual Trusted Platform Module (vTPM) on the Virtual Machines"
+      }
+    },
+    "deploymentTimestamp": {
+      "type": "string",
+      "defaultValue": "[utcNow()]",
+      "metadata": {
+        "description": "An optional timestamp used to record as a tag which is used by ArcGIS Deployment Tools"
+      }
+    },
+    "useArcGISWebAdaptorForNotebookServer": {
+      "type": "bool",
+      "metadata": {
+        "description": ""
+      },
+      "defaultValue": false
+    },
+    "installDockerEngineBinaries": {
+      "type": "bool",
+      "metadata": {
+        "description": ""
+      },
+      "defaultValue": false
+    },
+    "dockerEngineBinariesArchiveFileName": {
+      "type": "string",
+      "metadata": {
+        "description": "File name for the docker engine binary"
+      },
+      "defaultValue": ""
+    },
+    "installGPUExtension":{
+      "type": "bool",
+      "metadata": {
+        "description": "Install GPU Extension"
+      },
+      "defaultValue": false
+    },
+    "arcgisDeploymentVersion": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) Version number of the ArcGIS Software used in the deployment"
+      },
+      "defaultValue": "11.5"
+    },
+    "removeAndUninstallExtraArtifacts": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "(Optional) Remove exta artifacts staged or installed on ArcGIS Azure Marketplace images."
+      }
+    },
+    "arcgisDeploymentId": {
+      "type": "string",
+      "metadata": {
+        "description": "Deployment Id required in case of post deployment operations and optional in case of new deployments"
+      },
+      "defaultValue": ""
+    },
+    "deploymentTrackingID": {
+      "type": "string",
+      "metadata": {
+        "description": "(Optional) deployment Tracking ID based on Orchestrator being Automation or Cloud Builder "
+      },
+      "defaultValue": "ce8cb19a-d8ef-4027-9e3e-98e814baca36"
+    },
+    "outboundConnectivityMethod": {
+      "type": "string",
+      "defaultValue": "None",
+      "allowedValues": [
+        "None",
+        "LoadBalancer",
+        "NatGateway"
+      ]
+    },
+    "natGatewayResourceGroup": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "natGatewayName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "baseDeploymentResourcePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource prefix for base deployment"
+      },
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "deploymentId": "[if(empty(parameters('arcgisDeploymentId')),uniqueString(resourceGroup().id, concat(parameters('serverContext'), parameters('location')),if(not(empty(parameters('secondaryDnsHostName'))),parameters('secondaryDnsHostName'),parameters('externalDnsHostName'))),parameters('arcgisDeploymentId'))]",
+    "computeApiVersion": "2024-07-01",
+    "networkApiVersion": "2023-11-01",
+    "deploymentsApiVersion": "2024-03-01",
+    "environmentToBlobEndpoint": {
+      "AzureCloud": ".blob.core.windows.net",
+      "AzureGermanCloud": ".blob.core.cloudapi.de",
+      "AzureUSGovernment": ".blob.core.usgovcloudapi.net",
+      "AzureChinaCloud": ".blob.core.chinacloudapi.cn"
+    },
+    "userAssignedIdentities": {
+      "type": "UserAssigned",
+      "userAssignedIdentities": "[parameters('userAssignedIdentities')]"
+    },
+    "publicIPAddressResourceName": "[if(parameters('usesExistingPublicIP'), parameters('existingPublicIPName'), concat(parameters('deploymentPrefix'), 'PublicIP'))]",
+    "publicIPAddressRDPResourceName": "[concat(parameters('deploymentPrefix'), 'PublicIP-RDP')]",
+    "publicIPAddressResourceGroupName": "[if(parameters('usesExistingPublicIP'), parameters('existingPublicIPResourceGroupName'), resourceGroup().name)]",
+    "unusedPublicIPPWhenUsingPrivateIPDnsPrefix": "[concat('ip',variables('deploymentId'),parameters('serverContext'))]",
+    "unusedPublicIPWhenUsingPrivateIPResourceName": "[concat(variables('unusedPublicIPPWhenUsingPrivateIPDnsPrefix'),'UnusedPublicIP')]",
+    "vnetID": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks',parameters('existingVirtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
+    "appGatewaySubnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('appGatewaySubnetName'))]",
+    "nicName": "nic",
+    "serverAvailablitySetName": "[concat(parameters('deploymentPrefix'), 'AvailabilitySet-', parameters('serverContext'))]",
+    "virtualMachineNames": "[split(parameters('virtualMachineNames'),',')]",
+    "numberOfVirtualMachines": "[length(variables('virtualMachineNames'))]",
+    "securityTagOption": {
+      "true": "Federated",
+      "false": "StandAlone"
+    },
+    "deploymentType": {
+      "true": "Enterprise",
+      "false": "StandAloneServer"
+    },
+    "frontendIPConfigurationsName": "[concat(parameters('deploymentPrefix'), variables('deploymentType')[string(parameters('federateSite'))], 'AppGatewayFrontendIP')]",
+    "publicIPFrontEndConfiguration": [
+      {
+        "name": "[variables('frontendIPConfigurationsName')]",
+        "properties": {
+          "PublicIPAddress": {
+            "id": "[resourceId(variables('publicIPAddressResourceGroupName'),'Microsoft.Network/publicIPAddresses',variables('publicIPAddressResourceName'))]"
+          }
+        }
+      }
+    ],
+    "privateIPFrontEndConfiguration": {
+      "true": [
+        {
+          "name": "unusedAppGatewayFrontendPublicIP",
+          "properties": {
+            "PublicIPAddress": {
+              "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('unusedPublicIPWhenUsingPrivateIPResourceName'))]"
+            }
+          }
+        },
+        {
+          "name": "[variables('frontendIPConfigurationsName')]",
+          "properties": {
+            "privateIPAddress": "[parameters('appGatewayPrivateIP')]",
+            "privateIPAllocationMethod": "Static",
+            "subnet": {
+              "id": "[resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('existingVirtualNetworkName'), parameters('appGatewayPrivateIPSubnet'))]"
+            }
+          }
+        }
+      ],
+      "false": [
+        {
+          "name": "[variables('frontendIPConfigurationsName')]",
+          "properties": {
+            "privateIPAddress": "[parameters('appGatewayPrivateIP')]",
+            "privateIPAllocationMethod": "Static",
+            "subnet": {
+              "id": "[resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('existingVirtualNetworkName'), parameters('appGatewayPrivateIPSubnet'))]"
+            }
+          }
+        }
+      ]
+    },
+    "frontendport443Name": "[concat(parameters('deploymentPrefix'), variables('deploymentType')[string(parameters('federateSite'))], 'Port443')]",
+    "frontendport80Name": "[concat(parameters('deploymentPrefix'), variables('deploymentType')[string(parameters('federateSite'))], 'Port80')]",
+    "httpDeploymentListnerName": "[concat(parameters('deploymentPrefix'), 'Http', variables('deploymentType')[string(parameters('federateSite'))],'DeploymentListner')]",
+    "httpsDeploymentListnerName": "[concat(parameters('deploymentPrefix'), 'Https', variables('deploymentType')[string(parameters('federateSite'))], 'DeploymentListner')]",
+    "urlPathMapsName": "[concat(parameters('deploymentPrefix'), variables('deploymentType')[string(parameters('federateSite'))],'PathMap')]",
+    "redirectConfigurationName": "[concat(parameters('deploymentPrefix'), variables('deploymentType')[string(parameters('federateSite'))],'HttpToHttps')]",
+    "requestRoutingRule": "[concat(parameters('deploymentPrefix'), variables('deploymentType')[string(parameters('federateSite'))],'RequestRoutingRule')]",
+    "httpToHttpsRequestRoutingRule": "[concat(parameters('deploymentPrefix'), 'HttpToHttps',variables('deploymentType')[string(parameters('federateSite'))],'RequestRoutingRule')]",
+    "serverBackendSSLCertName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'ServerBackendSSLCert')]",
+    "serverBackendPoolName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'ServerBackendPool')]",
+    "serverBackendHttpsSettingName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'ServerHttpsSetting')]",
+    "geoeventServerBackendHttpsSettingName": "[concat(parameters('geoeventServerContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'GeoeventServerHttpsSetting')]",
+    "wsGeoeventServerBackendHttpsSettingName": "[concat(parameters('geoeventServerContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WSGeoeventServerHttpsSetting')]",
+    "wsMissionServerBackendHttpsSettingName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WSMissionServerHttpsSetting')]",
+    "wfmServerWorkflowBackendHttpsSettingName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WFMServerWorkflowHttpsSetting')]",
+    "serverPathRuleName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'ServerPathRule')]",
+    "geoeventServerPathRuleName": "[concat(parameters('geoeventServerContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'GeoeventServerPathRule')]",
+    "wsGeoeventServerPathRuleName": "[concat(parameters('geoeventServerContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WSGeoeventServerPathRule')]",
+    "wsMissionServerPathRuleName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WSMissionServerPathRule')]",
+    "wfmServerWorkflowPathRuleName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WFMServerWorkflowPathRule')]",
+    "serverRewriteRuleSetName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'ServerRewriteRuleSet')]",
+    "geoeventServerRewriteRuleSetName": "[concat(parameters('geoeventServerContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'GeoeventServerRewriteRuleSet')]",
+    "wsGeoeventServerRewriteRuleSetName": "[concat(parameters('geoeventServerContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WSGeoeventServerRewriteRuleSet')]",
+    "wsMissionServerRewriteRuleSetName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WSMissionServerRewriteRuleSet')]",
+    "wfmServeRewriteRuleSetName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WFMServerRewriteRuleSet')]",
+    "serverBackendProbeName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'ServerProbeName')]",
+    "geoeventServerProbeName": "[concat(parameters('geoeventServerContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'GeoeventServerProbeName')]",
+    "wfmServerProbeName": "[concat(parameters('serverContext'),'-',variables('securityTagOption')[string(parameters('federateSite'))],'WFMServerProbeName')]",
+    "dscExtensionArchiveFileName": "DSC.zip",
+    "dscScriptFunction": "[if(parameters('isMultiTier'), 'GISServerMultiTierConfiguration','GISServerSingleTierConfiguration')]",
+    "notebookDscScriptFunction": "[if(parameters('isMultiTier'), 'NotebookServerMultiTierConfiguration','NotebookServerSingleTierConfiguration')]",
+    "missionDscScriptFunction": "[if(parameters('isMultiTier'), 'MissionServerMultiTierConfiguration','MissionServerSingleTierConfiguration')]",
+    "notebookDockerInstallDscScriptFunction": "NotebookServerDockerBinariesInstall",
+    "fileShareDscScriptFunction": "FileShareConfiguration",
+    "sqlServerDscScriptFunction": "SQLServerConfiguration",
+    "cloudStoreCredentialsPassword": {
+      "AccessKey": "[parameters('cloudStorageAccountKey')]",
+      "SASToken": "[parameters('cloudStorageSASToken')]",
+      "ServicePrincipal": "placeholder",
+      "UserAssignedIdentity": "placeholder"
+    },
+    "cloudStorageAccountCredentialsUserName": {
+      "false": "placeholder",
+      "true": "[concat(parameters('cloudStorageAccountName'),variables('environmentToBlobEndpoint')[parameters('environment')])]"
+    },
+    "cloudStorageOption": {
+      "true": "[concat(substring(parameters('externalDnsHostName'), 0, indexOf(parameters('externalDnsHostName'),'.')), '@', parameters('cloudStorageAccountName'), variables('environmentToBlobEndpoint')[parameters('environment')], '@', parameters('cloudStorageAccountResourceGroupName'),'@',string(parameters('useAzureFiles')), '@', parameters('cloudStorageAuthenticationType'))]",
+      "false": ""
+    },
+    "databaseServerAdministratorAccountUserName": {
+      "true": "placeholder",
+      "false": "[parameters('databaseServerAdministratorAccountUserName')]"
+    },
+    "databaseServerAdministratorAccountPassword": {
+      "true": "placeholder",
+      "false": "[parameters('databaseServerAdministratorAccountPassword')]"
+    },
+    "databaseUserAccountUserName": {
+      "true": "placeholder",
+      "false": "[parameters('databaseUserAccountUserName')]"
+    },
+    "databaseUserAccountPassword": {
+      "true": "placeholder",
+      "false": "[parameters('databaseUserAccountPassword')]"
+    },
+    "databaseServerHostName": {
+      "None": "placeholder",
+      "AzureSQLDatabase": "[parameters('databaseServerHostName')]",
+      "AzurePostgreSQLDatabase": "[parameters('databaseServerHostName')]",
+      "AzureFlexiblePostgreSQLDatabase": "[parameters('databaseServerHostName')]",
+      "SQLServerDatabase": "[parameters('databaseServerHostName')]",
+      "AzureMISQLDatabase": "[parameters('databaseServerHostName')]"
+    },
+    "deployJumpBox": "[if(and(not(parameters('federateSite')),parameters('enableRDPAccess')),bool('true'), bool('false'))]",
+    "displayName": {
+      "FileShare": "File Share",
+      "SQLServer": "SQL Server",
+      "RDPJumpBox": "RDP Jump Box"
+    },
+    "publicIPAddressLBResourceName": "[concat(parameters('deploymentPrefix'), 'PublicIP-LB')]",
+    "loadBalancerName": "[if(parameters('federateSite'), concat(parameters('baseDeploymentResourcePrefix'), 'OutboundLoadBalancer'), concat(parameters('deploymentPrefix'), 'OutboundLoadBalancer'))]",
+    "frontendIPConfigName": "LbFrontend",
+    "backendAddressPoolName": "LbBackendPool",
+    "outboundRuleName": "lb-outbound-rule",
+    "dataCollectionRuleName": "[concat(parameters('deploymentPrefix'), 'DataCollectionRule-',parameters('serverContext'))]",
+    "trustedLaunchSecurityProfile": {
+      "true": {
+        "uefiSettings": {
+          "secureBootEnabled": "[parameters('secureBootEnabled')]",
+          "vTpmEnabled": "[parameters('vTpmEnabled')]"
+        },
+        "securityType": "TrustedLaunch"
+      },
+      "false": {}
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2014-04-01-preview",
+      "name": "[concat('pid-',parameters('deploymentTrackingID'))]",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+          ]
+        }
+      }
+    },
+    {
+      "condition": "[variables('deployJumpBox')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressRDPResourceName')]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Public IP Address - RDP (Optional)",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "sku": {
+        "name": "[if(equals(parameters('outboundConnectivityMethod'), 'None'), 'Basic', 'Standard')]"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[if(equals(parameters('outboundConnectivityMethod'), 'None'), 'Dynamic', 'Static')]",
+        "idleTimeoutInMinutes": 4,
+        "dnsSettings": {
+          "domainNameLabel": "[concat(parameters('dnsPrefixForPublicIpAddress'),'-rdp')]"
+        }
+      }
+    },
+    {
+      "condition": "[and(equals(string(parameters('usesExistingPublicIP')), 'False'),and(equals(string(parameters('federateSite')), 'False'),or(and(equals(string(parameters('usesPrivateIP')), 'False'),not(empty(parameters('dnsPrefixForPublicIpAddress')))),and(equals(string(parameters('usesPrivateIP')), 'True') ,equals(string(parameters('deployPublicIPWhenUsingPrivateIP')), 'True')))))]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[if(parameters('usesPrivateIP'),variables('unusedPublicIPWhenUsingPrivateIPResourceName'),variables('publicIPAddressResourceName'))]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Application Gateway Public IP Address",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "sku": {
+        "name": "Standard"
+      },
+      "scale": null,
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4,
+        "dnsSettings": {
+          "domainNameLabel": "[if(parameters('usesPrivateIP'),variables('unusedPublicIPPWhenUsingPrivateIPDnsPrefix'),parameters('dnsPrefixForPublicIpAddress'))]"
+        }
+      },
+      "dependsOn": [
+      ]
+    },
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('serverAvailablitySetName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "GIS Server Availability Set",
+        "arcgis-deployment-id": "[variables('deploymentId')]",
+        "arcgis-federated-deployment-id": "[parameters('federatedSiteDeploymentId')]"
+      },
+      "properties": {
+        "platformUpdateDomainCount": 2,
+        "platformFaultDomainCount": 2
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(parameters('virtualMachines')[copyIndex()]['VMName'], '-', variables('nicName'))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "Network Interface",
+        "arcgis-deployment-id": "[variables('deploymentId')]",
+        "arcgis-federated-deployment-id": "[parameters('federatedSiteDeploymentId')]"
+      },
+      "copy": {
+        "name": "nic-copy",
+        "count": "[length(parameters('virtualMachines'))]"
+      },
+      "dependsOn": [
+        "[variables('publicIPAddressRDPResourceName')]",
+        "[resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[if(and(variables('deployJumpBox'),equals(parameters('virtualMachines')[copyIndex()]['VMRoles'],'RDPJumpBox')),'jumpbox-ipconfig','ipconfig')]",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "publicIPAddress": "[if(and(variables('deployJumpBox'),equals(parameters('virtualMachines')[copyIndex()]['VMRoles'],'RDPJumpBox')),json(concat('{\"id\":\"',resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressRDPResourceName')),'\"}')),json('null'))]",
+              "loadBalancerBackendAddressPools": "[if(equals(parameters('virtualMachines')[copyIndex()]['VMRoles'],'RDPJumpBox'), json('null'), if(equals(parameters('outboundConnectivityMethod'), 'LoadBalancer'), json(concat('[{\"id\":\"',resourceId(parameters('appGatewayResourceGroupName'), 'Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/', variables('backendAddressPoolName'),'\"}]')), json('null')))]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "condition": "[not(empty(parameters('adminPassword')))]",
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('virtualMachines')[copyIndex()]['VMName']]",
+      "location": "[parameters('location')]",
+      "identity": "[if(empty(parameters('userAssignedIdentities')),json('null'),variables('userAssignedIdentities'))]",
+      "copy": {
+        "name": "vm-copy",
+        "count": "[length(parameters('virtualMachines'))]"
+      },
+      "tags": {
+        "arcgis-vm-roles": "[parameters('virtualMachines')[copyIndex()]['VMRoles']]",
+        "arcgis-deployment-id": "[variables('deploymentId')]",
+        "arcgis-federated-deployment-id": "[parameters('federatedSiteDeploymentId')]",
+        "displayName": "[if(contains(parameters('virtualMachines')[copyIndex()]['VMRoles'],'Server'),' GIS Servers',variables('displayName')[parameters('virtualMachines')[copyIndex()]['VMRoles']])]"
+      },
+      "plan": "[if(and(equals(string(parameters('virtualMachines')[copyIndex()]['AzureVMImageType']),'0'),not(equals(parameters('virtualMachines')[copyIndex()]['ImageSpec']['Publisher'],'MicrosoftWindowsServer')),not(equals(parameters('virtualMachines')[copyIndex()]['ImageSpec']['Publisher'],'MicrosoftSQLServer'))),json(concat('{\"publisher\":\"',parameters('virtualMachines')[copyIndex()]['ImageSpec']['Publisher'],'\",\"product\":\"',parameters('virtualMachines')[copyIndex()]['ImageSpec']['Offer'],'\",\"name\":\"',parameters('virtualMachines')[copyIndex()]['ImageSpec']['SKU'],'\"}')),json('null'))]",
+      "dependsOn": [
+        "nic-copy",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('serverAvailablitySetName'))]"
+      ],
+      "properties": {
+        "availabilitySet": "[if(or(equals(parameters('virtualMachines')[copyIndex()]['VMRoles'],'SQLServer'),equals(parameters('virtualMachines')[copyIndex()]['VMRoles'],'RDPJumpBox')), json('null'), json(concat('{\"id\":\"',resourceId('Microsoft.Compute/availabilitySets', variables('serverAvailablitySetName')), '\"}')))]",
+        "hardwareProfile": {
+          "vmSize": "[parameters('virtualMachines')[copyIndex()]['VMSize']]"
+        },
+        "osProfile": {
+          "computername": "[parameters('virtualMachines')[copyIndex()]['VMName']]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": "[parameters('enableAutomaticUpdates')]",
+            "timeZone": "[parameters('timeZoneId')]"
+          }
+        },
+        "storageProfile": {
+          "imageReference": "[if(equals(string(parameters('virtualMachines')[copyIndex()]['AzureVMImageType']),'0'),json(concat('{\"publisher\":\"',parameters('virtualMachines')[copyIndex()]['ImageSpec']['Publisher'],'\",\"offer\":\"',parameters('virtualMachines')[copyIndex()]['ImageSpec']['Offer'],'\",\"sku\":\"',parameters('virtualMachines')[copyIndex()]['ImageSpec']['SKU'],'\",\"version\":\"latest\"}')),if(equals(string(parameters('virtualMachines')[copyIndex()]['AzureVMImageType']),'1'),json(concat('{\"id\":\"',resourceid(string(parameters('virtualMachines')[copyIndex()]['ImageSpec']['UserImageResourceGroupName']),'Microsoft.Compute/images',parameters('virtualMachines')[copyIndex()]['ImageSpec']['UserImageName']),'\"}')),json(concat('{\"id\":\"',parameters('virtualMachines')[copyIndex()]['ImageSpec']['ComputeGalleryImageVersionResourceId'],'\"}'))))]",
+          "osDisk": {
+            "name": "[concat(parameters('virtualMachines')[copyIndex()]['VMName'],'-','OSDisk')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('virtualMachines')[copyIndex()]['OSDiskType']]"
+            },
+            "diskSizeGB": "[parameters('virtualMachines')[copyIndex()]['OSDiskSize']]",
+            "caching": "[if(less(parameters('virtualMachines')[copyIndex()]['OSDiskSize'],4096),'ReadWrite','None')]",
+            "createOption": "FromImage"
+          },
+          "dataDisks": "[if(equals(length(parameters('virtualMachines')[copyIndex()]['DataDisks']),0),json('null'),parameters('virtualMachines')[copyIndex()]['DataDisks'])]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces/', concat(parameters('virtualMachines')[copyIndex()]['VMName'], '-',variables('nicName')))]"
+            }
+          ]
+        },
+        "securityProfile": "[variables('trustedLaunchSecurityProfile')[string(parameters('enableTrustedLaunch'))]]"
+      }
+    },
+    {
+      "condition": "[and(parameters('installGPUExtension'),startsWith(parameters('virtualMachines')[copyIndex()]['VMSize'],'Standard_N'),not(or(and(startsWith(parameters('virtualMachines')[copyIndex()]['VMSize'],'Standard_NV'),endsWith(parameters('virtualMachines')[copyIndex()]['VMSize'],'as_v4')),startsWith(parameters('virtualMachines')[copyIndex()]['VMSize'],'Standard_NG'))))]",
+      "name": "[concat(parameters('virtualMachines')[copyIndex()]['VMName'],'/NvidiaGpuDriverWindows')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2015-06-15",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "serverInstallNVIDIAGPUCopy",
+        "count": "[length(parameters('virtualMachines'))]"
+      },
+      "dependsOn": [
+        "vm-copy"
+      ],
+      "properties": {
+        "publisher": "Microsoft.HpcCompute",
+        "type": "NvidiaGpuDriverWindows",
+        "typeHandlerVersion": "1.4",
+        "autoUpgradeMinorVersion": true,
+        "settings": {}
+      }
+    },
+    {
+      "condition": "[and(parameters('installGPUExtension'),or(and(startsWith(parameters('virtualMachines')[copyIndex()]['VMSize'],'Standard_NV'),endsWith(parameters('virtualMachines')[copyIndex()]['VMSize'],'as_v4')),startsWith(parameters('virtualMachines')[copyIndex()]['VMSize'],'Standard_NG')))]",
+      "name": "[concat(parameters('virtualMachines')[copyIndex()]['VMName'],'/AMDGpuDriverWindows')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2015-06-15",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "serverInstallAMDGPUCopy",
+        "count": "[length(parameters('virtualMachines'))]"
+      },
+      "dependsOn": [
+        "vm-copy"
+      ],
+      "properties": {
+        "publisher": "Microsoft.HpcCompute",
+        "type": "AmdGpuDriverWindows",
+        "typeHandlerVersion": "1.1",
+        "autoUpgradeMinorVersion": true,
+        "settings": {}
+      }
+    },
+    {
+      "condition": "[equals(string(parameters('enableAutoShutDown')), 'True')]",
+      "apiVersion": "2018-09-15",
+      "type": "Microsoft.DevTestLab/schedules",
+      "name": "[toLower(concat('shutdown-computevm-', parameters('virtualMachines')[copyIndex()]['VMName']))]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "serverAutoShutDownCopy",
+        "count": "[length(parameters('virtualMachines'))]"
+      },
+      "dependsOn": [
+        "vm-copy"
+      ],
+      "properties": {
+        "status": "[if(equals(string(parameters('enableAutoShutDown')),'True'),'Enabled','Disabled')]",
+        "timeZoneId": "[parameters('timeZoneId')]",
+        "taskType": "ComputeVmShutdownTask",
+        "notificationSettings": {
+          "status": "Disabled",
+          "timeInMinutes": 15,
+          "webhookUrl": ""
+        },
+        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines/', parameters('virtualMachines')[copyIndex()]['VMName'])]",
+        "dailyRecurrence": {
+          "time": "[parameters('autoShutDownTime')]"
+        }
+      }
+    },
+    {
+      "condition": "[equals(string(parameters('joinWindowsDomain')), 'True')]",
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('virtualMachines')[copyIndex()]['VMName'],'/JoinDomain')]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "serverDomainJoinCopy",
+        "count": "[length(parameters('virtualMachines'))]"
+      },
+      "dependsOn": [
+        "vm-copy"
+      ],
+      "tags": {
+        "displayName": "(Optional) Server Domain Join"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name": "[parameters('windowsDomainName')]",
+          "User": "[parameters('windowsDomainAdministratorUserName')]",
+          "Restart": "true",
+          "Options": 3
+        },
+        "protectedSettings": {
+          "Password": "[parameters('windowsDomainAdministratorPassword')]"
+        }
+      }
+    },
+    {
+      "condition": "[not(empty(parameters('azureMonitoringAgentUserAssignedIdentityId')))]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('virtualMachines')[copyIndex()]['VMName'],'/AzureMonitorWindowsAgent')]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "amaCopy",
+        "count": "[length(parameters('virtualMachines'))]"
+      },
+      "apiVersion": "[variables('computeApiVersion')]",
+      "dependsOn": [
+        "vm-copy"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Azure.Monitor",
+        "type": "AzureMonitorWindowsAgent",
+        "typeHandlerVersion": "1.0",
+        "autoUpgradeMinorVersion": true,
+        "enableAutomaticUpgrade": true,
+        "settings": {
+          "authentication": {
+            "managedIdentity": {
+              "identifier-name": "mi_res_id",
+              "identifier-value": "[parameters('azureMonitoringAgentUserAssignedIdentityId')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "condition": "[and(not(empty(parameters('logAnalyticsWorkspaceResourceGroupName'))),not(empty(parameters('logAnalyticsWorkspaceName'))))]",
+      "apiVersion": "[variables('deploymentsApiVersion')]",
+      "name": "[concat('setupmonitoring-',deployment().name)]",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "vm-copy"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'),'/','setupmonitoring.json', parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "deploymentPrefix": {
+            "value": "[parameters('deploymentPrefix')]"
+          },
+          "serverContext": {
+            "value": "[parameters('serverContext')]"
+          },
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
+          },
+          "logAnalyticsWorkspaceResourceGroupName": {
+            "value": "[parameters('logAnalyticsWorkspaceResourceGroupName')]"
+          },
+          "deploymentId": {
+            "value": "[variables('deploymentId')]"
+          }
+        }
+      }
+    },
+    {
+      "condition": "[and(not(empty(parameters('logAnalyticsWorkspaceResourceGroupName'))),not(empty(parameters('logAnalyticsWorkspaceName'))))]",
+      "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+      "apiVersion": "2023-03-11",
+      "name": "[concat(parameters('virtualMachines')[copyIndex()]['VMName'],'-DCRAssociation')]",
+      "copy": {
+        "name": "dcrAssociationCopy",
+        "count": "[length(parameters('virtualMachines'))]"
+      },
+      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('virtualMachines')[copyIndex()]['VMName'])]",
+      "dependsOn": [
+        "vm-copy",
+        "[concat('setupmonitoring-',deployment().name)]"
+      ],
+      "properties": {
+        "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', variables('dataCollectionRuleName'))]",
+        "description": "[format('Associating {0} VM', parameters('virtualMachines')[copyIndex()]['VMName'])]"
+      }
+    },
+    {
+      "name": "[concat('generateSSLCertificatesCustomExtension-',deployment().name)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('deploymentsApiVersion')]",
+      "dependsOn": [
+        "vm-copy",
+        "serverDomainJoinCopy"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'),'/','generatecertificate-cse.json', parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vmName": {
+            "value": "[if(parameters('useExistingFileShare'), variables('virtualMachineNames')[0], parameters('fileShareVirtualMachineName'))]"
+          },
+          "serverRole": {
+            "value": "[parameters('serverRole')]"
+          },
+          "useSelfSignedInternalSSLCertificate": {
+            "value": "[parameters('useSelfSignedInternalSSLCertificate')]"
+          },
+          "selfSignedSSLCertificatePassword": {
+            "value": "[parameters('selfSignedSSLCertificatePassword')]"
+          },
+          "externalDnsHostName": {
+            "value": "[parameters('externalDnsHostName')]"
+          },
+          "serverInternalCertificateFileName": {
+            "value": "[parameters('serverInternalCertificateFileName')]"
+          },
+          "fileShareName": {
+            "value": "[parameters('fileShareName')]"
+          },
+          "serverVirtualMachineNames": {
+            "value": "[parameters('virtualMachineNames')]"
+          },
+          "useExistingFileShare": {
+            "value": "[parameters('useExistingFileShare')]"
+          },
+          "useExistingFileShareMachineOfBaseDeployment": {
+            "value": "[parameters('useFileShareMachineOfBaseDeployment')]"
+          },
+          "fileShareMachineName": {
+            "value": "[parameters('fileShareVirtualMachineName')]"
+          },
+          "fileSharePath": {
+            "value": "[parameters('fileSharePath')]"
+          },
+          "serverContext": {
+            "value": "[parameters('serverContext')]"
+          },
+          "arcgisServiceAccountUserName": {
+            "value": "[parameters('arcgisServiceAccountUserName')]"
+          },
+          "arcgisServiceAccountPassword": {
+            "value": "[parameters('arcgisServiceAccountPassword')]"
+          },
+          "_artifactsLocation": {
+            "value": "[parameters('_artifactsLocation')]"
+          },
+          "_artifactsLocationSasToken": {
+            "value": "[parameters('_artifactsLocationSasToken')]"
+          }
+        }
+      }
+    },
+    {
+      "condition": "[variables('deployJumpBox')]",
+      "apiVersion": "[variables('deploymentsApiVersion')]",
+      "name": "[concat('fetchIpAddress-',deployment().name)]",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressLBResourceName'))]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressRDPResourceName'))]",
+        "vm-copy"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'),'/','fetchIpAddress.json', parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "publicIPAddressId": {
+            "value": "[resourceId('Microsoft.Network/publicIpAddresses', variables('publicIPAddressRDPResourceName'))]"
+          }
+        }
+      }
+    },
+    {
+      "condition": "[and(not(empty(parameters('arcgisServiceAccountPassword'))),or(parameters('federateSite'),and(not(parameters('federateSite')),not(empty(parameters('sslCertificatePassword'))))),or(not(empty(parameters('selfSignedSSLCertificatePassword'))),not(empty(parameters('serverInternalCertificatePassword')))))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('deploymentsApiVersion')]",
+      "name": "[concat('appGatewayNestedDeployment-',deployment().name)]",
+      "resourceGroup": "[parameters('appGatewayResourceGroupName')]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'generateSSLCertificatesCustomExtension-', deployment().name)]",
+        "[concat('Microsoft.Resources/deployments/', 'fetchIpAddress-', deployment().name)]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+          },
+          "variables": {
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/applicationGateways",
+              "apiVersion": "2022-11-01",
+              "name": "[parameters('appGatewayName')]",
+              "location": "[parameters('location')]",
+              "tags": APPGATEWAYTAGS,
+              "properties": APPGATEWAYPROPERTIESOBJECT
+            }
+          ]
+        },
+        "parameters": {
+        }
+      }
+    },
+    {
+      "condition": "[and(parameters('usesFileShareVirtualMachine'),not(empty(parameters('adminPassword'))))]",
+      "type": "Microsoft.Compute/virtualMachines/runCommands",
+      "apiVersion": "[variables('computeApiVersion')]",
+      "name": "[concat(parameters('fileShareVirtualMachineName'),'/FileShareConfigurationDSCRunCMD')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "File Share DSC Script"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'generateSSLCertificatesCustomExtension-', deployment().name)]"
+      ],
+      "properties": {
+        "source": {
+          "scriptUri": "[concat(parameters('_artifactsLocation'),'/','RunCommandInvokeARMTemplateDSC.ps1', parameters('_artifactsLocationSasToken'))]"
+        },
+        "treatFailureAsDeploymentFailure": true,
+        "parameters": [
+          {
+            "name": "Version",
+            "value": "[parameters('arcgisDeploymentVersion')]"
+          },
+          {
+            "name": "ConfigurationName",
+            "value": "[variables('fileShareDscScriptFunction')]"
+          },
+          {
+            "name": "ServiceCredentialIsDomainAccount",
+            "value": "[string(parameters('arcgisServiceAccountIsDomainAccount'))]"
+          },
+          {
+            "name": "IsBaseDeployment",
+            "value": "false"
+          },
+          {
+            "name": "ExternalDNSHostName",
+            "value": "[parameters('externalDnsHostName')]"
+          },
+          {
+            "name": "FileShareName",
+            "value": "[parameters('fileShareName')]"
+          },
+          {
+            "name": "ServerRole",
+            "value": "[parameters('serverRole')]"
+          },
+          {
+            "name": "ServerContext",
+            "value": "[parameters('serverContext')]"
+          },
+          {
+            "name": "DebugMode",
+            "value": "[string(parameters('debugMode'))]"
+          }
+        ],
+        "protectedParameters": [
+          {
+            "name": "DSCZipFileUrl",
+            "value": "[uriComponent(concat(parameters('_artifactsLocation'),'/',variables('dscExtensionArchiveFileName'), parameters('_artifactsLocationSasToken')))]"
+          },
+          {
+            "name": "ServiceCredential",
+            "value": "[concat(base64(if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))), ':', base64(if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))))]"
+          },
+          {
+            "name": "MachineAdministratorCredential",
+            "value": "[concat(base64(parameters('adminUsername')),':',base64(parameters('adminPassword')))]"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/runCommands",
+      "apiVersion": "[variables('computeApiVersion')]",
+      "name": "[concat(variables('virtualMachineNames')[copyIndex()],'/ServerConfigurationDSCRunCMD')]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "DSC-copy",
+        "count": "[variables('numberOfVirtualMachines')]",
+        "mode": "serial"
+      },
+      "tags": {
+        "displayName": "GIS Server DSC Scripts"
+      },
+      "dependsOn": [
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', parameters('fileShareVirtualMachineName')),'/runCommands/FileShareConfigurationDSCRunCMD')]",
+        "[concat(resourceId('Microsoft.Compute/VirtualMachines', variables('databaseServerHostName')[parameters('databaseOption')]),'/runCommands/SQLDSCConfigurationDSCRunCMD')]",
+        "[concat('Microsoft.Resources/deployments/','appGatewayNestedDeployment-',deployment().name)]"
+      ],
+      "properties": {
+        "source": {
+          "scriptUri": "[concat(parameters('_artifactsLocation'),'/','RunCommandInvokeARMTemplateDSC.ps1', parameters('_artifactsLocationSasToken'))]"
+        },
+        "treatFailureAsDeploymentFailure": true,
+        "parameters": [
+          {
+            "name": "Version",
+            "value": "[parameters('arcgisDeploymentVersion')]"
+          },
+          {
+            "name": "ConfigurationName",
+            "value": "[if(equals(string(parameters('serverRole')), 'NotebookServer'), variables('notebookDscScriptFunction'), if(equals(string(parameters('serverRole')), 'MissionServer'), variables('missionDscScriptFunction'),  variables('dscScriptFunction')))]"
+          },
+          {
+            "name": "ServiceCredentialIsDomainAccount",
+            "value": "[string(parameters('arcgisServiceAccountIsDomainAccount'))]"
+          },
+          {
+            "name": "ServerMachineNames",
+            "value": "[parameters('virtualMachineNames')]"
+          },
+          {
+            "name": "ExternalDNSHostName",
+            "value": "[parameters('externalDnsHostName')]"
+          },
+          {
+            "name": "PrivateDNSHostName",
+            "value": "[parameters('secondaryDnsHostName')]"
+          },
+          {
+            "name": "UseExistingFileShare",
+            "value": "[parameters('useExistingFileShare')]"
+          },
+          {
+            "name": "UseFileShareMachineOfBaseDeployment",
+            "value": "[parameters('useFileShareMachineOfBaseDeployment')]"
+          },
+          {
+            "name": "FileShareMachineName",
+            "value": "[parameters('fileShareVirtualMachineName')]"
+          },
+          {
+            "name": "FileShareName",
+            "value": "[parameters('fileShareName')]"
+          },
+          {
+            "name": "FileSharePath",
+            "value": "[parameters('fileSharePath')]"
+          },
+          {
+            "name": "UseCloudStorage",
+            "value": "[parameters('useCloudStorage')]"
+          },
+          {
+            "name": "UseAzureFiles",
+            "value": "[parameters('useAzureFiles')]"
+          },
+          {
+            "name": "ServerContext",
+            "value": "[parameters('serverContext')]"
+          },
+          {
+            "name": "PortalContext",
+            "value": "[parameters('federatedSitePortalContext')]"
+          },
+          {
+            "name": "FederateSite",
+            "value": "[parameters('federateSite')]"
+          },
+          {
+            "name": "ServerFunctions",
+            "value": "[parameters('serverFunctions')]"
+          },
+          {
+            "name": "ServerRole",
+            "value": "[parameters('serverRole')]"
+          },
+          {
+            "name": "PortalMachineNamesOnHostingServer",
+            "value": "[parameters('portalMachineNamesOnHostingServer')]"
+          },
+          {
+            "name": "GisServerMachineNamesOnHostingServer",
+            "value": "[parameters('gisServerMachineNamesOnHostingServer')]"
+          },
+          {
+            "name": "EnableLogHarvesterPlugin",
+            "value": "[parameters('enableServerLogHarvesterPlugin')]"
+          },
+          {
+            "name": "IsUpdatingCertificates",
+            "value": "[parameters('isUpdatingCertificates')]"
+          },
+          {
+            "name": "DebugMode",
+            "value": "[parameters('debugMode')]"
+          },
+          {
+            "name": "CloudStorageAuthenticationType",
+            "value": "[parameters('cloudStorageAuthenticationType')]"
+          },
+          {
+            "name": "StorageAccountUserAssignedIdentityClientId",
+            "value": "[parameters('cloudStorageUserAssignedIdentityClientId')]"
+          },
+          {
+            "name": "StorageAccountServicePrincipalTenantId",
+            "value": "[parameters('cloudStorageServicePrincipalTenantId')]"
+          },
+          {
+            "name": "StorageAccountServicePrincipalAuthorityHost",
+            "value": "[parameters('cloudStorageServicePrincipalAuthorityHost')]"
+          },
+          {
+            "name": "GeoeventContext",
+            "value": "[parameters('geoeventServerContext')]"
+          },
+          {
+            "name": "IsAddingServersOrRegisterEGDB",
+            "value": "[parameters('isAddingServersOrRegisterEGDB')]"
+          },
+          {
+            "name": "DatabaseServerHostName",
+            "value": "[parameters('databaseServerHostName')]"
+          },
+          {
+            "name": "DatabaseName",
+            "value": "[parameters('databaseName')]"
+          },
+          {
+            "name": "DatabaseOption",
+            "value": "[parameters('databaseOption')]"
+          },
+          {
+            "name": "EnableGeodatabase",
+            "value": "[parameters('enableGeodatabase')]"
+          },
+          {
+            "name": "RegisterEGDBAsRasterStore",
+            "value": "[parameters('registerEGDBAsRasterStore')]"
+          },
+          {
+            "name": "UseArcGISWebAdaptorForNotebookServer",
+            "value": "[parameters('useArcGISWebAdaptorForNotebookServer')]"
+          }
+        ],
+        "protectedParameters": [
+          {
+            "name": "DSCZipFileUrl",
+            "value": "[uriComponent(concat(parameters('_artifactsLocation'),'/',variables('dscExtensionArchiveFileName'), parameters('_artifactsLocationSasToken')))]"
+          },
+          {
+            "name": "ServerLicenseFileUrl",
+            "value": "[if(empty(parameters('serverLicenseFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('serverLicenseFileName'), parameters('_artifactsLocationSasToken')))]"
+          },
+          {
+            "name": "PublicKeySSLCertificateFileUrl",
+            "value": "[if(empty(parameters('publicKeySSLCertificateFileName')), '', concat(parameters('_artifactsLocation'), '/', parameters('publicKeySSLCertificateFileName'), parameters('_artifactsLocationSasToken')))]"
+          },
+          {
+            "name": "ServiceCredential",
+            "value": "[concat(base64(if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))), ':', base64(if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))))]"
+          },
+          {
+            "name": "MachineAdministratorCredential",
+            "value": "[concat(base64(if(empty(parameters('adminUsername')),'PlaceHolder', parameters('adminUsername'))), ':', base64(if(empty(parameters('adminPassword')),'PlaceHolder', parameters('adminPassword'))))]"
+          },
+          {
+            "name": "ServerInternalCertificatePassword",
+            "value": "[if(equals(string(parameters('useSelfSignedInternalSSLCertificate')),'True'), parameters('selfSignedSSLCertificatePassword'), parameters('serverInternalCertificatePassword'))]"
+          },
+          {
+            "name": "SiteAdministratorCredential",
+            "value": "[concat(base64(parameters('primarySiteAdministratorAccountUserName')), ':', base64(parameters('primarySiteAdministratorAccountPassword')))]"
+          },
+          {
+            "name": "StorageAccountCredential",
+            "value": "[concat(base64(variables('cloudStorageAccountCredentialsUserName')[string(parameters('useCloudStorage'))]), ':', base64(if(parameters('useCloudStorage'), variables('cloudStoreCredentialsPassword')[parameters('cloudStorageAuthenticationType')],'placeholder')))]"
+          },
+          {
+            "name": "StorageAccountServicePrincipalCredential",
+            "value": "[concat(base64(if(equals(parameters('cloudStorageAuthenticationType'),'ServicePrincipal'),parameters('cloudStorageServicePrincipalClientId'),'placeholder')), ':', base64(if(equals(parameters('cloudStorageAuthenticationType'),'ServicePrincipal'),parameters('cloudStorageServicePrincipalClientSecret'),'placeholder')))]"
+          },
+          {
+            "name": "PortalSiteAdministratorCredential",
+            "value": "[concat(base64(parameters('portalSiteAdministratorAccountUserName')), ':', base64(parameters('portalSiteAdministratorAccountPassword')))]"
+          },
+          {
+            "name": "DatabaseServerAdministratorCredential",
+            "value": "[concat(base64(variables('databaseServerAdministratorAccountUserName')[string(equals(parameters('databaseOption'), 'None'))]), ':', base64(variables('databaseServerAdministratorAccountPassword')[string(equals(parameters('databaseOption'), 'None'))]))]"
+          },
+          {
+            "name": "DatabaseUserCredential",
+            "value": "[concat(base64(variables('databaseUserAccountUserName')[string(equals(parameters('databaseOption'), 'None'))]), ':', base64(variables('databaseUserAccountPassword')[string(equals(parameters('databaseOption'), 'None'))]))]"
+          },
+          {
+            "name": "CloudStores",
+            "value": "[string(parameters('cloudStores'))]"
+          }
+        ]
+      }
+    },
+    {
+      "condition": "[and(equals(string(parameters('serverRole')), 'NotebookServer'),parameters('installDockerEngineBinaries'))]",
+      "name": "[concat(variables('virtualMachineNames')[copyIndex()],'/NBDockerDSCConfiguration')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "NB-DSC-copy",
+        "count": "[variables('numberOfVirtualMachines')]",
+        "mode": "serial"
+      },
+      "tags": {
+        "displayName": "Notebook Server DSC Scripts"
+      },
+      "dependsOn": [
+        "DSC-copy"
+      ],
+      "apiVersion": "[variables('computeApiVersion')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.77",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
+          "configuration": {
+            "url": "[concat(parameters('_artifactsLocation'), '/', variables('dscExtensionArchiveFileName'))]",
+            "function": "[variables('notebookDockerInstallDscScriptFunction')]",
+            "script": "[concat(variables('notebookDockerInstallDscScriptFunction'), '.ps1')]"
+          },
+          "configurationArguments": {
+            "ServiceCredentialIsDomainAccount": "[parameters('arcgisServiceAccountIsDomainAccount')]",
+            "Context": "[parameters('serverContext')]",
+            "DockerEngineBinariesArchiveUrl": "[if(and(not(parameters('installDockerEngineBinaries')), empty(parameters('dockerEngineBinariesArchiveFileName'))), '', concat(parameters('_artifactsLocation'), '/', parameters('dockerEngineBinariesArchiveFileName'), parameters('_artifactsLocationSasToken')))]"
+          }
+        },
+        "protectedSettings": {
+          "configurationUrlSasToken": "[parameters('_artifactsLocationSasToken')]",
+          "configurationArguments": {
+            "ServiceCredential": {
+              "userName": "[if(empty(parameters('arcgisServiceAccountUserName')),'PlaceHolder', parameters('arcgisServiceAccountUserName'))]",
+              "password": "[if(empty(parameters('arcgisServiceAccountPassword')),'PlaceHolder', parameters('arcgisServiceAccountPassword'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "condition": "[and(not(parameters('isUpdatingCertificates')),equals(string(parameters('databaseOption')), 'SQLServerDatabase'))]",
+      "name": "[concat(variables('databaseServerHostName')[parameters('databaseOption')],'/SQLDSCConfigurationDSCRunCMD')]",
+      "type": "Microsoft.Compute/virtualMachines/runCommands",
+      "apiVersion": "[variables('computeApiVersion')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "displayName": "(Optional) SQL Server DSC Scripts"
+      },
+      "dependsOn": [
+        "serverDomainJoinCopy"
+      ],
+      "properties": {
+        "source": {
+          "scriptUri": "[concat(parameters('_artifactsLocation'),'/','RunCommandInvokeARMTemplateDSC.ps1', parameters('_artifactsLocationSasToken'))]"
+        },
+        "treatFailureAsDeploymentFailure": true,
+        "parameters": [
+          {
+            "name": "ConfigurationName",
+            "value": "[variables('sqlServerDscScriptFunction')]"
+          }
+        ],
+        "protectedParameters": [
+          {
+            "name": "DSCZipFileUrl",
+            "value": "[uriComponent(concat(parameters('_artifactsLocation'),'/',variables('dscExtensionArchiveFileName'), parameters('_artifactsLocationSasToken')))]"
+          },
+          {
+            "name": "DatabaseServerAdministratorCredential",
+            "value": "[concat(base64(variables('databaseServerAdministratorAccountUserName')[string(equals(parameters('databaseOption'), 'None'))]),':',base64(variables('databaseServerAdministratorAccountPassword')[string(equals(parameters('databaseOption'), 'None'))]))]"
+          }
+        ]
+      }
+    },
+    {
+      "condition": "[and(equals(parameters('outboundConnectivityMethod'), 'LoadBalancer'), equals(string(parameters('federateSite')), 'False'))]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIPAddressLBResourceName')]",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "tags": {
+        "displayName": "Public IP Address - LB",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "scale": null,
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4,
+        "dnsSettings": {
+          "domainNameLabel": "[concat(if(parameters('usesPrivateIP'),'',concat(parameters('dnsPrefixForPublicIpAddress'),'-')),'lb-', variables('deploymentId'))]"
+        }
+      }
+    },
+    {
+      "condition": "[and(equals(parameters('outboundConnectivityMethod'), 'LoadBalancer'), equals(string(parameters('federateSite')), 'False'))]",
+      "type": "Microsoft.Network/loadBalancers",
+      "apiVersion": "[variables('networkApiVersion')]",
+      "name": "[variables('loadBalancerName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "tags": {
+        "displayName": "Load Balancer",
+        "arcgis-deployment-id": "[variables('deploymentId')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressLBResourceName'))]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "[variables('frontendIPConfigName')]",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressLBResourceName'))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[variables('backendAddressPoolName')]"
+          }
+        ],
+        "outboundRules": [
+          {
+            "name": "[variables('outboundRuleName')]",
+            "properties": {
+              "frontendIPConfigurations": [
+                {
+                  "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'), 'Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/frontendIPConfigurations/', variables('frontendIPConfigName'))]"
+                }
+              ],
+              "backendAddressPool": {
+                "id": "[concat(resourceId(parameters('appGatewayResourceGroupName'), 'Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/', variables('backendAddressPoolName'))]"
+              },
+              "protocol": "All",
+              "idleTimeoutInMinutes": 4,
+              "allocatedOutboundPorts": 1024
+            }
+          }
+        ]
+      }
+    }
+  ],
+    "outputs": {
+      "serverManagerUrl": {
+        "type": "string",
+        "value": "[concat('https://', parameters('externalDnsHostName'), '/',parameters('serverContext'),'/manager/')]"
+      }
+    }
+  }

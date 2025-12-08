@@ -85,7 +85,7 @@
           "ImageSpec": {
             "Publisher": "esri",
             "Offer": "arcgis-enterprise",
-            "SKU": "byol-113",
+            "SKU": "byol-114",
             "AzureVMImageType": 0
           },
           "VMSize": "Standard_D8s_v5",
